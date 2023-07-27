@@ -21,6 +21,8 @@
 #include "G4Navigator.hh"
 #include "G4TransportationManager.hh"
 
+#include "skGADNickelGenerator.hh"
+
 #include "TRandom3.h"
 #include "G4PhysicalConstants.hh"
 #include "G4SystemOfUnits.hh"
@@ -72,13 +74,14 @@ WCSimPrimaryGeneratorAction::WCSimPrimaryGeneratorAction(
     SetParticlePosition(G4ThreeVector(0.*m,0.*m,0.*m));
     
   messenger = new WCSimPrimaryGeneratorMessenger(this);
-  useMulineEvt 	= true;
+  useMulineEvt 	= false;
   useGunEvt    	= false;
   useLaserEvt  	= false;
   useInjectorEvt  	= false;
   useGPSEvt    	= false;
   useRootrackerEvt 	= false;
   useRadonEvt        	= false;
+  useNickelEvt  = true;
   
   fEvNum = 0;
   fInputRootrackerFile = NULL;
@@ -696,6 +699,11 @@ void WCSimPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
       }
 
     }
+  // Zhong H.: Add for Nickel Event
+  else if(useNickelEvt)
+    {
+      this->SetUpNickelParticleGun(anEvent);
+    }
 }
 
 void WCSimPrimaryGeneratorAction::SaveOptionsToOutput(WCSimRootOptions * wcopt)
@@ -721,6 +729,8 @@ G4String WCSimPrimaryGeneratorAction::GetGeneratorTypeString()
     return "injector";
   else if(useRootrackerEvt)
     return "rooTrackerEvt";
+  else if(useNickelEvt)
+    return "nickel";
   return "";
 }
 
@@ -849,4 +859,33 @@ void WCSimPrimaryGeneratorAction::SetupBranchAddresses(NRooTrackerVtx* nrootrack
 void WCSimPrimaryGeneratorAction::CopyRootrackerVertex(NRooTrackerVtx* nrootrackervtx){
   nrootrackervtx->Copy(fTmpRootrackerVtx);
   nrootrackervtx->TruthVertexID = -999;
+}
+void WCSimPrimaryGeneratorAction::SetUpNickelParticleGun(G4Event* anEvent)
+{//Code for nickel calibration ball, added by Yano, 20161012
+	G4PrimaryVertex *NiVertex = new G4PrimaryVertex();
+	// Create a primary particle and add it to the vertex
+	// (primaryParticle objects are destroyed in G4EventManager::ProcessOneEvent()
+	// when event and then vertex is deleted)
+	G4PrimaryParticle* NiPrimaryParticle[4];
+	NiPrimaryParticle[0]    = new G4PrimaryParticle();
+	NiPrimaryParticle[1]    = new G4PrimaryParticle();
+	NiPrimaryParticle[2]    = new G4PrimaryParticle();
+	NiPrimaryParticle[3]    = new G4PrimaryParticle();
+
+	skGADNickelGenerator    *NiGen  = skGADNickelGenerator::getInstance();
+	G4ReactionProductVector *NiGam  = NiGen->GetGammas();
+	G4ThreeVector           *GamPos = NiGen->GetPos();
+	G4ThreeVector            NiPos  = (*GamPos)+nigenPos;
+	G4int                    ngam   = (G4int)(NiGam->size());
+	NiVertex->SetPosition(NiPos.x(),NiPos.y(),NiPos.z());
+
+	G4ReactionProduct *ithGamma;
+	for (int i = 0; i < ngam ; i++){
+		ithGamma = NiGam->operator[](i);
+		NiPrimaryParticle[i]->SetG4code( ithGamma->GetDefinition() );
+		NiPrimaryParticle[i]->SetMass( 0. );
+		NiPrimaryParticle[i]->Set4Momentum( ithGamma->GetMomentum().x(),ithGamma->GetMomentum().y(),ithGamma->GetMomentum().z(), ithGamma->GetTotalEnergy() );
+		NiVertex->SetPrimary(NiPrimaryParticle[i]);
+	}
+	anEvent->AddPrimaryVertex(NiVertex);
 }

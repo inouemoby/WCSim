@@ -13,6 +13,7 @@ class G4UIcmdWithADouble;
 #include "G4UIcmdWithAnInteger.hh"
 #include "globals.hh"
 #include "G4Tokenizer.hh"
+#include <G4UIcmdWith3VectorAndUnit.hh>
 
 class WCSimPrimaryGeneratorMessenger: public G4UImessenger
 {
@@ -46,6 +47,7 @@ class WCSimPrimaryGeneratorMessenger: public G4UImessenger
   G4UIcmdWithADouble* injectorTimeCmd;
   G4UIcmdWithADouble* openingAngleCmd;
   G4UIcmdWithADouble* injectorWavelengthCmd;
+  G4UIcmdWith3VectorAndUnit*   NiPosCmd;// Added by T. Yano, for Ni calib
   
   void IsotopeCommand(G4String newValue);
   void RadonScalingCommand(G4String newValue);

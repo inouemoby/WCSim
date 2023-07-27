@@ -77,15 +77,21 @@ class WCSimPrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
         G4GeneralParticleSource*        MyGPS;  //T. Akiri: GPS to run Laser
         WCSimPrimaryGeneratorMessenger* messenger;
 
+	//T. Yano: Addition of function for the Nickel Calib.
+	void SetUpNickelParticleGun(G4Event* anEvent);
+	//G4ThreeVector nigenPos(double 0, double 0, double 0);
+	G4ThreeVector nigenPos;//(double 0, double 0, double 0);
+  
         // Variables set by the messenger
         G4bool   useMulineEvt;
         G4bool   useRootrackerEvt;
         G4bool   useGunEvt;
         G4bool   useLaserEvt;  //T. Akiri: Laser flag
+        G4bool   useNickelEvt;  //T. Yano: Nickel flag
         G4bool   useGPSEvt;
         G4bool   useRadonEvt; // G. Pronost: Radon flag
         G4bool   useInjectorEvt; // K.M.Tsui: injector flag
-        
+  
         std::fstream inputFile;
         G4String vectorFileName;
         G4bool   GenerateVertexInRock;
@@ -157,6 +163,11 @@ class WCSimPrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
         //T. Akiri: Addition of function for the laser flag
         inline void SetLaserEvtGenerator(G4bool choice) { useLaserEvt = choice; }
         inline G4bool IsUsingLaserEvtGenerator()  { return useLaserEvt; }
+       	//T. Yano: Addition of function for the Nickel flag
+        inline void SetNickelEvtGenerator(G4bool choice) { useNickelEvt = choice; }
+	inline G4bool IsUsingNickelEvtGenerator()  { return useNickelEvt; }
+	void SetNiPos(G4ThreeVector val) { nigenPos   = val; }
+    
   
         inline void SetGPSEvtGenerator(G4bool choice) { useGPSEvt = choice; }
         inline G4bool IsUsingGPSEvtGenerator()  { return useGPSEvt; }

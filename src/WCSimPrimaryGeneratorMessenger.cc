@@ -15,10 +15,10 @@ WCSimPrimaryGeneratorMessenger::WCSimPrimaryGeneratorMessenger(WCSimPrimaryGener
   genCmd = new G4UIcmdWithAString("/mygen/generator",this);
   genCmd->SetGuidance("Select primary generator.");
 
-  genCmd->SetGuidance(" Available generators : muline, gun, laser, gps, rootracker, radon, injector");
+  genCmd->SetGuidance(" Available generators : muline, gun, laser, gps, rootracker, radon, injector, nickel");
   genCmd->SetParameterName("generator",true);
   genCmd->SetDefaultValue("muline");
-  genCmd->SetCandidates("muline gun laser gps rootracker radon injector");
+  genCmd->SetCandidates("muline gun laser gps rootracker radon injector nickel");
 
   fileNameCmd = new G4UIcmdWithAString("/mygen/vecfile",this);
   fileNameCmd->SetGuidance("Select the file of vectors.");
@@ -89,6 +89,12 @@ WCSimPrimaryGeneratorMessenger::WCSimPrimaryGeneratorMessenger(WCSimPrimaryGener
   param = new G4UIparameter("SYMMETRY",'d',true);
   param->SetDefaultValue("1");
   radonScalingCmd->SetParameter(param);
+
+  //T. Yano : Addition of nickel
+  NiPosCmd = new G4UIcmdWith3VectorAndUnit("/mygen/nickelposition",this);
+  NiPosCmd->SetGuidance("Position of  nickel ball source.[cm]");
+  NiPosCmd->SetDefaultValue(G4ThreeVector(0,0,0));
+  //T. Yano : Addition of nickel
 
 }
 
@@ -174,6 +180,15 @@ void WCSimPrimaryGeneratorMessenger::SetNewValue(G4UIcommand * command,G4String 
       myAction->SetGPSEvtGenerator(false);
       myAction->SetRadonEvtGenerator(true);
     }
+    else if ( newValue == "nickel")   //T. Yano: Addition of Nickel Calibration
+    {
+      myAction->SetMulineEvtGenerator(false);
+      myAction->SetGunEvtGenerator(false);
+      myAction->SetGPSEvtGenerator(false);
+      myAction->SetGPSEvtGenerator(false);
+      myAction->SetLaserEvtGenerator(false);
+      myAction->SetNickelEvtGenerator(true);
+    }
   }
 
   if( command == fileNameCmd )
@@ -247,6 +262,10 @@ void WCSimPrimaryGeneratorMessenger::SetNewValue(G4UIcommand * command,G4String 
     {
       myAction->SetInjectorWavelength(injectorWavelengthCmd->GetNewDoubleValue(newValue));
     }
+  if( command == NiPosCmd ) //T. Yano: Addition of Nickel Calibration
+    {
+      myAction->SetNiPos(NiPosCmd->GetNew3VectorValue(newValue));
+    }
 
 }
 
@@ -270,6 +289,8 @@ G4String WCSimPrimaryGeneratorMessenger::GetCurrentValue(G4UIcommand* command)
       { cv = "rootracker"; }   //M. Scott: Addition of Rootracker events
     else if(myAction->IsUsingRadonEvtGenerator())
       { cv = "radon"; } // G. Pronost: Addition of Radon generator
+    else if(myAction->IsUsingNickelEvtGenerator())
+      { cv = "nickel"; }   //T. Yano: Addition of nickel
   }
   
   return cv;
