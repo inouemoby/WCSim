@@ -30,23 +30,20 @@ void WCSimRootOptions::Print(Option_t *) const
   cout
     << "Detector construction:" << endl
     << "\tDetectorName: " << DetectorName << endl
-    << "\tDetectorHasOD: " << (GeomHasOD ? "yes" : "no") << endl
     << "\tSavePi0: " << SavePi0 << endl
     << "\tPMTQEMethod: " << PMTQEMethod << endl
     << "\tPMTCollEff: " << PMTCollEff << endl
-
     << "Dark Noise options:" << endl;
-  for(std::map<string, WCSimDarkNoiseOptions>::const_iterator it=DarkOptMap.begin(); it != DarkOptMap.end(); ++it) {
-    cout
-      << "\t" << it->first << endl
-      << "\t\tPMTDarkRate: " << it->second.PMTDarkRate << " kHz" << endl
-      << "\t\tConvRate: " << it->second.ConvRate << " kHz" << endl
-      << "\t\tDarkHigh: " << it->second.DarkHigh << " ns" << endl
-      << "\t\tDarkLow: " << it->second.DarkLow << " ns" << endl
-      << "\t\tDarkWindow: " << it->second.DarkWindow << " ns" << endl
-      << "\t\tDarkMode: " << it->second.DarkMode << endl;
+    for(std::map<string, WCSimDarkNoiseOptions>::const_iterator it=DarkOptMap.begin(); it != DarkOptMap.end(); ++it) {
+          cout
+	    << "\t" << it->first << endl
+	    << "\t\tPMTDarkRate: " << it->second.PMTDarkRate << " kHz" << endl
+	    << "\t\tConvRate: " << it->second.ConvRate << " kHz" << endl
+	    << "\t\tDarkHigh: " << it->second.DarkHigh << " ns" << endl
+	    << "\t\tDarkLow: " << it->second.DarkLow << " ns" << endl
+	    << "\t\tDarkWindow: " << it->second.DarkWindow << " ns" << endl
+	    << "\t\tDarkMode: " << it->second.DarkMode << endl;
     }
-
     cout << "Digitizer options:" << endl
 	 << "\tDigitizerClassName: " << DigitizerClassName << endl
 	 << "\tDigitizerDeadTime: " << DigitizerDeadTime << " ns" << endl
@@ -78,22 +75,19 @@ void WCSimRootOptions::Print(Option_t *) const
 	 << "\tQeff: " << Qeff << endl
 	 << "\tMieff: " << Mieff << endl
 	 << "\tTtsff: " << Ttsff << endl
-      //<< "\tQoiff: " << Qoiff << endl
-	 << "\tPMTSatur:" << PmtSatur << endl
+      //<< "\tQoiff: " << Qoiff << endl //TD 2019.6.26
+	 << "\tPMTSatur:" << PmtSatur << endl //TD 2019.7.16
 	 << "\tTvspacing: " << Tvspacing << endl
 	 << "\tTopveto: " << Topveto << endl
 
-	 << "Physics List Factory:" << endl
+    << "Physics List Factory:" << endl
 	 << "\tPhysicsListName: " << PhysicsListName << endl
-
 	 << "WCSimPrimaryGeneratorAction" << endl
 	 << "\tVectorFileName: " << VectorFileName << endl
 	 << "\tGeneratorType: " << GeneratorType << endl
-
-	 << "WCSimRandomParameters" << endl
+   << "WCSimRandomParameters" << endl
  	 << "\tRandomSeed: " << RandomSeed << endl
 	 << "\tRandomGenerator: " << WCSimEnumerations::EnumAsString(RandomGenerator) << endl
-
 	 << endl;
 }
  

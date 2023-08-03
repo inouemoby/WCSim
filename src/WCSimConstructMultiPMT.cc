@@ -40,7 +40,7 @@ G4LogicalVolume* WCSimDetectorConstruction::ConstructMultiPMT(G4String PMTName, 
 
   G4bool showme = true;
 
-  G4cout<<"TEMP: Collection Name = "<<CollectionName<<G4endl;
+  std::cout<<"TEMP: Collection Name = "<<CollectionName<<std::endl;
   //WCSimPMTObject *PMT = GetPMTPointer(CollectionName);
   //G4double 
   // For default SK-style without cover.
@@ -68,8 +68,8 @@ G4LogicalVolume* WCSimDetectorConstruction::ConstructMultiPMT(G4String PMTName, 
   //All components of the PMT are now contained in a single logical volume logicWCPMT.
   //Origin is on the blacksheet, faces positive z-direction.
 
-  //WCSimPMTObject *PMT = GetPMTPointer(CollectionName);
-  //G4double expose =  PMT->GetExposeHeight(); // THIS is the PMT expose, which I'm currently using for pressure mPMT_vessel construction
+  WCSimPMTObject *PMT = GetPMTPointer(CollectionName);
+  G4double expose =  PMT->GetExposeHeight(); // THIS is the PMT expose, which I'm currently using for pressure mPMT_vessel construction
 
   //  expose = 0.0153*m;          //TF: to compare same size mPMT_vessels for different size PMTs
   // this is NOT the "expose" of the mPMT
@@ -142,7 +142,7 @@ G4LogicalVolume* WCSimDetectorConstruction::ConstructMultiPMT(G4String PMTName, 
 				 solidCutOffTubs);
    
 
-    //G4cout << "DEBUG MODE " << vessel_radius_curv - vessel_cap_height << " " <<vessel_cap_height << G4endl;
+    //std::cout << "DEBUG MODE " << vessel_radius_curv - vessel_cap_height << " " <<vessel_cap_height << std::endl;
  
     //cap_position_offset = -1.0* (vessel_radius_curv - vessel_cap_height); //lower position of cap by the piece that we cut off.
 
@@ -296,7 +296,7 @@ G4LogicalVolume* WCSimDetectorConstruction::ConstructMultiPMT(G4String PMTName, 
   // origin is center of upward cylinder
   G4LogicalVolume *logic_mPMT_container;
   //necessary to make concentric shells because can Mother can only contain parametrized daughters.
-  G4double innerR_curv_container = mPMT_vessel_radius_curv - mPMT_outer_material_d - pmtModuleHeight;  //-expose - dist_pmt_vessel
+  G4double innerR_curv_container = mPMT_vessel_radius_curv - mPMT_outer_material_d - 54.*mm;  //-expose - dist_pmt_vessel
   G4double outerR_curv_container = mPMT_vessel_radius_curv - mPMT_outer_material_d;
 
   //vessel_curv - vessel_height is conserved for all concentric caps !
@@ -305,8 +305,8 @@ G4LogicalVolume* WCSimDetectorConstruction::ConstructMultiPMT(G4String PMTName, 
   G4double outerR_container = sqrt( outerR_curv_container*outerR_curv_container -
 				    (mPMT_vessel_radius_curv - mPMT_vessel_cap_height)*(mPMT_vessel_radius_curv - mPMT_vessel_cap_height) );
   
-  //G4cout << "Inner container radii: Rcurv " << innerR_curv_container << ", R: " << innerR_container << G4endl;
-  //G4cout << "Outer container radii: Rcurv " << outerR_curv_container << ", R: " << outerR_container << G4endl;
+  //std::cout << "Inner container radii: Rcurv " << innerR_curv_container << ", R: " << innerR_container << std::endl;
+  //std::cout << "Outer container radii: Rcurv " << outerR_curv_container << ", R: " << outerR_container << std::endl;
 
   if(addPMTBase || nIDPMTs == 1)
     innerR_container = 0;
@@ -411,7 +411,7 @@ G4LogicalVolume* WCSimDetectorConstruction::ConstructMultiPMT(G4String PMTName, 
 
   // individual PMTs z=0 is offset by position_z_offset (see ConstructPMT) for n>1
   G4double pmtDistance = innerR_curv_container; // Inner radius od the DOM 
-  pmtDistance -= (mPMT_vessel_radius_curv - mPMT_outer_material_d - pmtModuleHeight); 
+  pmtDistance -= (mPMT_vessel_radius_curv - mPMT_outer_material_d - 54.*mm); 
   G4cout << "Distance from the Z axis and corrected for z0 of individual PMTs = " <<  pmtDistance << " mm" << G4endl;
   
   G4LogicalVolume* logicWCPMT = ConstructPMT(PMTName, CollectionName,detectorElement,nIDPMTs);
@@ -519,7 +519,7 @@ G4LogicalVolume* WCSimDetectorConstruction::ConstructMultiPMT(G4String PMTName, 
 			  kZAxis,                           // Are placed along this axis
 			  NbOfTotPmt,                       // Number of PMTs (replica's)
 			  pmtParam_id,                      // The parametrisation
-			  checkOverlaps);                   // checking overlaps
+			  true);                            // checking overlaps
   
   
   // Need a 4mm tolerance : still not perfect though because overlaps with mother volume happen still..
@@ -733,7 +733,7 @@ G4int WCSimDetectorConstruction::FillCircles(void){
   }
     
   //for(int i = 0; i < vNiC.size(); i++) {
-  // G4cout << "test " << vNiC[i] << " " << vAlpha[i]/CLHEP::deg << " " << vEta[i]/CLHEP::deg << G4endl;
+  // std::cout << "test " << vNiC[i] << " " << vAlpha[i]/CLHEP::deg << " " << vEta[i]/CLHEP::deg << std::endl;
   //}
 
   /// NEW: optionally add an azimuth offset line for the first PMT of each circle (by default 0)
@@ -761,7 +761,7 @@ G4int WCSimDetectorConstruction::FillCircles(void){
     }
   }
 
-  //G4cout << "Test: vNic: " << vNiC.size() << " vAlpha: " << vAlpha.size() << " vCircle: " << vCircle.size() << G4endl;
+  //std::cout << "Test: vNic: " << vNiC.size() << " vAlpha: " << vAlpha.size() << " vCircle: " << vCircle.size() << std::endl;
 
   return TotPmt; 
 }
@@ -814,7 +814,7 @@ G4int WCSimDetectorConstruction::CountPMT(G4int NoPmt)
 	vAlpha.push_back(alphaNext);
 	vNiC.push_back(NiCNext);
 	G4cout << "Circle n. " << NoCircle << " - Number of PMTs: " << vNiC[NoCircle-1] << " - alpha: " << vAlpha[NoCircle-1]*180/3.141592 << " - eta " << fEta*180/3.141592 << G4endl;
-	G4cout << "Circle n. " << NoCircle << " - Number of PMTs: " << vNiC[NoCircle-1] << " - alpha: " << vAlpha[NoCircle-1]*180/3.141592 << " - eta " << fEta*180/3.141592 << G4endl;
+	std::cout << "Circle n. " << NoCircle << " - Number of PMTs: " << vNiC[NoCircle-1] << " - alpha: " << vAlpha[NoCircle-1]*180/3.141592 << " - eta " << fEta*180/3.141592 << std::endl;
 	NoCircle++;
       }
       alphaPrev = alphaNext;
@@ -827,7 +827,7 @@ G4int WCSimDetectorConstruction::CountPMT(G4int NoPmt)
     vAlpha.push_back(alphaNext);
     vNiC.push_back(NiCNext);
     G4cout << "Circle n. " << NoCircle << " - Number of PMTs: " << vNiC[NoCircle-1] << " - alpha: " << vAlpha[NoCircle-1]*180/3.141592 << " - eta " << fEta*180/3.141592 << G4endl;
-    G4cout << "Circle n. " << NoCircle << " - Number of PMTs: " << vNiC[NoCircle-1] << " - alpha: " << vAlpha[NoCircle-1]*180/3.141592 << " - eta " << fEta*180/3.141592 << G4endl;
+    std::cout << "Circle n. " << NoCircle << " - Number of PMTs: " << vNiC[NoCircle-1] << " - alpha: " << vAlpha[NoCircle-1]*180/3.141592 << " - eta " << fEta*180/3.141592 << std::endl;
     NoCircle++;  
   }
   
@@ -842,10 +842,10 @@ G4int WCSimDetectorConstruction::CountPMT(G4int NoPmt)
     }
   }
  
-  G4cout << "Total number of pmt: " << TotPmt << G4endl;
-  G4cout << "Percentage of covered hemispherical surface = " << TotPmt*(1-std::cos(fEta))*100 << "%" << G4endl;
-  G4cout << "Percentage of covered hemispherical surface above theta_min = " << TotPmt*(1-std::cos(fEta))*100/(1-std::cos(CLHEP::pi/2-theta_min)) << "%" << G4endl;
-  G4cout << "Test: vNic: " << vNiC.size() << " vAlpha: " << vAlpha.size() << " vCircle: " << vCircle.size() << G4endl;
+  std::cout << "Total number of pmt: " << TotPmt << std::endl;
+  std::cout << "Percentage of covered hemispherical surface = " << TotPmt*(1-std::cos(fEta))*100 << "%" << std::endl;
+  std::cout << "Percentage of covered hemispherical surface above theta_min = " << TotPmt*(1-std::cos(fEta))*100/(1-std::cos(CLHEP::pi/2-theta_min)) << "%" << std::endl;
+  std::cout << "Test: vNic: " << vNiC.size() << " vAlpha: " << vAlpha.size() << " vCircle: " << vCircle.size() << std::endl;
 
   return TotPmt;
 }

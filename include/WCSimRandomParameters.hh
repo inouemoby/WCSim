@@ -27,14 +27,14 @@ public:
       {
         case RANDOM_E_RANLUX:
 	  {
-	    G4cout << "Setting the random number generator to RANLUX" << G4endl;
+	    printf("Setting the random number generator to RANLUX\n");
 	    CLHEP::RanluxEngine *newluxengine = new CLHEP::RanluxEngine(31415,4);  // highest luxury level
 	    CLHEP::HepRandom::setTheEngine(newluxengine);
 	  }
 	  break;
       case RANDOM_E_RANECU:
 	  {
-	    G4cout << "Setting the random number generator to RANECU" << G4endl;
+	    printf("Setting the random number generator to RANECU\n");
 	    CLHEP::RanecuEngine *newecuengine = new CLHEP::RanecuEngine();
 	    CLHEP::HepRandom::setTheEngine(newecuengine);
 	  }
@@ -42,14 +42,14 @@ public:
 	  
         case RANDOM_E_HEPJAMES:
 	  {
-	    G4cout << "Setting the random number generator to HEPJAMES" << G4endl;
+	    printf("Setting the random number generator to HEPJAMES\n");
 	    CLHEP::HepJamesRandom *newjamesengine = new CLHEP::HepJamesRandom();
 	    CLHEP::HepRandom::setTheEngine(newjamesengine);
 	  }  
 	  break;
       default:
 	{
-	  G4cout << "Random number generator type not understood: " << rng << G4endl;
+	  printf("Random number generator type not understood: %d\n",rng);
 	  exit(0);
 	}
       }
@@ -59,7 +59,7 @@ public:
     { 
       CLHEP::HepRandom::setTheSeed(iseed);
       gRandom->SetSeed(iseed);
-      G4cout << "Setting the Random Seed to: " << iseed << G4endl;
+      printf("Setting the Random Seed to: %d\n",iseed); 
       seed = iseed;
     }
 

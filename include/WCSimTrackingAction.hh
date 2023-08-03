@@ -31,10 +31,12 @@ private:
   
   G4double fTime_birth;
   G4double fMaxTime;
+
   // TF: define in macro now
   G4double percentageOfCherenkovPhotonsToDraw;
 
   WCSimTrackingMessenger* messenger;
+  
 };
 
 

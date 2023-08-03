@@ -13,7 +13,6 @@
 #include "Randomize.hh"
 #include <map>
 #include <vector>
-#include <limits>
 
 
 // *******************************************
@@ -40,10 +39,7 @@ public:
 
   double Truncate(double value, double precision) {
     if(precision < 1E-10) return value;
-    double ratio=value / precision;
-    // Result of cast is undefined if value is outside range of int. Just do nothing in that case.
-    if(ratio>std::numeric_limits<int64_t>::max() || ratio<std::numeric_limits<int64_t>::min() ) return value;
-    return precision * (int64_t)(value / precision);
+    return precision * (int)(value / precision);
   }
 
   ///Save current values of options
@@ -51,6 +47,8 @@ public:
   
 protected:
   void ReInitialize() { DigiStoreHitMap.clear(); }
+
+  G4double peSmeared;
 
   WCSimDetectorConstruction* myDetector; ///< Get the geometry information
   WCSimWCDAQMessenger* DAQMessenger;     ///< Get the /DAQ/ .mac options
@@ -88,7 +86,7 @@ class WCSimWCDigitizerSKI : public WCSimWCDigitizerBase
 {
 public:
   
-  WCSimWCDigitizerSKI(G4String name, WCSimDetectorConstruction*, WCSimWCDAQMessenger*, G4String detectorElement);
+  WCSimWCDigitizerSKI(G4String name, WCSimDetectorConstruction*, WCSimWCDAQMessenger*, G4String);
   ~WCSimWCDigitizerSKI();
 
   void DigitizeHits(WCSimWCDigitsCollection* WCHCPMT);

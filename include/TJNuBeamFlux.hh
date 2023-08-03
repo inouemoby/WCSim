@@ -1,6 +1,8 @@
 #ifndef JNuBeamFlux_hh_seen
 #define JNuBeamFlux_hh_seen
 
+#include <iostream>
+
 #include "TObject.h"
 #include "TObjString.h"
 

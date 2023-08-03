@@ -1,22 +1,14 @@
 # GNU make and CMake in-place build results to ignore
 *WCSimRootDict*
 !src/*WCSimRootDict*
-#ignore build results
-src/WCSimRootDict.cc
-src/WCSimRootDict.cxx
-src/WCSimRootDict.h
 libWCSim.a
 libWCSimRoot.*
 make.rootcint.result
 make.result
 make.out.txt
-*.pcm
 bin/
 tmp/
 doxygen/
-cmake-build-*
-build
-
 # CMake in-place build results to ignore
 CMakeCache.txt
 CMakeFiles/
@@ -24,10 +16,6 @@ Makefile
 WCSim
 cmake_install.cmake
 cmake.out.txt
-
-## ignore IDE files
-#IntelliJ IDE
-.idea
 # VS Code in-place build results to ignore
 *.code-workspace
 .vscode/
@@ -36,7 +24,6 @@ build/
 # run results to ignore
 *.out.txt
 *.root
-*.kin
 geofile.txt
 
 # compiled ROOT scripts to ignore

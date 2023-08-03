@@ -1,4 +1,5 @@
 #include "TJNuBeamFlux.hh"
+#include <iostream>
 
 //_______________________________________________________________________________________
 RooTrackerVtxBase::RooTrackerVtxBase() :
