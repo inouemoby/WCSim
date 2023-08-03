@@ -23,8 +23,6 @@
 // for memset
 #include <cstring>
 
-//#define WCSIMPMTOBJECT_VERBOSE
-
 //ToDo: Clean this up, many of these hard coded things can be read in from (ROOT) files.
 
 
@@ -84,7 +82,6 @@ G4String PMT20inch::GetPMTName() {G4String PMTName = "20inch"; return PMTName;}
 G4double PMT20inch::GetExposeHeight() {return .18*m;}
 G4double PMT20inch::GetRadius() {return .254*m;}
 G4double PMT20inch::GetPMTGlassThickness() {return 0.4*cm;}
-
 double PMT20inch::HitTimeSmearing(double Q, double TTSFF=1.0) {
   double timingConstant = 10.0;
   double timingResolution;
@@ -111,9 +108,10 @@ double PMT20inch::HitTimeSmearing(double Q, double TTSFF=1.0) {
 // TD 2019.07.16
 double PMT20inch::SaturFactor(double Q, double threshold=-1) {
   if (threshold == -1) return 1; //no saturation case
-  double saturFactor = (Q < threshold) ? 1 : (100+0.008632*(threshold-Q))/100; //expression found for SK 20inch PMT, assumed to be correct for other types
-  return saturFactor;
+  double SaturFactor = (Q < threshold) ? 1 : (100+0.008632*(threshold-Q))/100; //expression found for SK 20inch PMT, assumed to be correct for other types
+  return SaturFactor; 
 }
+
 
 G4double* PMT20inch::Getqpe()
    {
@@ -239,7 +237,7 @@ G4double* PMT20inch::GetQEWavelength(){
   return wavelength_value;
 }
 
-G4double* PMT20inch::GetQE(){
+G4double* PMT20inch::GetQE(){  
   static G4double QE[20] = { 0.00, .0139, .0854, .169, .203, .206, .211, .202,.188, .167, .140, .116, .0806, .0432, .0265, .0146, .00756, .00508, .00158, 0.00};
   return QE;
 }
@@ -270,11 +268,6 @@ G4double PMT20inch::GetDarkRateConversionFactor(){
   return factor;
 }
 
-G4int PMT20inch::GetNbOfQEDefined(){
-  const G4int factor = 20;
-  return factor;
-}
-
 ////////////////////////////////////////////////////////////////////////////////////////////////
 // 8 inch
 
@@ -286,13 +279,11 @@ G4double PMT8inch::GetExposeHeight() {return 91.6*mm;}
 G4double PMT8inch::GetRadius() {return 101.6*mm;}
 G4double PMT8inch::GetPMTGlassThickness() {return 0.55*cm;} //currently the same as 10inch
 G4double PMT8inch::HitTimeSmearing(double Q, double TTSFF=1.0) {
-#ifdef WCSIMPMTOBJECT_VERBOSE
-  G4cout << "+++++++++++PMT8inch++++++++++++++++++++++++++++++++++++++++++++ TTSFF = " << TTSFF << G4endl;
-#endif
+  printf("+++++++++++PMT8inch++++++++++++++++++++++++++++++++++++++++++++ TTSFF = %f \n", TTSFF); 
   double timingConstant = 1.890; 
   double timingResolution = 0.33 + sqrt(timingConstant/Q); 
-  timingResolution *= TTSFF;
-  // looking at SK's jitter function for 20" tubes
+    timingResolution *= TTSFF;
+// looking at SK's jitter function for 20" tubes
   if (timingResolution < 0.58) timingResolution=0.58;
   double Smearing_factor = G4RandGauss::shoot(0.0,timingResolution);
   return Smearing_factor;
@@ -301,9 +292,10 @@ G4double PMT8inch::HitTimeSmearing(double Q, double TTSFF=1.0) {
 // TD 2019.07.16
 double PMT8inch::SaturFactor(double Q, double threshold=-1) {
   if (threshold == -1) return 1; //no saturation case
-  double saturFactor = (Q < threshold) ? 1 : (100+0.008632*(threshold-Q))/100; //expression found for SK 20inch PMT, assumed to be correct for other types
-  return saturFactor;
+  double SaturFactor = (Q < threshold) ? 1 : (100+0.008632*(threshold-Q))/100; //expression found for SK 20inch PMT, assumed to be correct for other types
+  return SaturFactor; 
 }
+
 
 G4double* PMT8inch::Getqpe() //currently uses the same as 20inch
    {
@@ -438,17 +430,12 @@ G4double  PMT8inch::GetmaxQE(){
 }
 
 G4double PMT8inch::GetDarkRate(){
-  const G4double rate = 1*CLHEP::kilohertz;
+  const G4double rate = 4.2*CLHEP::kilohertz;   
   return rate;
 }
 
 G4double PMT8inch::GetDarkRateConversionFactor(){
   const G4double factor = 1.367;
-  return factor;
-}
-
-G4int PMT8inch::GetNbOfQEDefined(){
-  const G4int factor = 20;
   return factor;
 }
 
@@ -463,13 +450,11 @@ G4double PMT5inch::GetExposeHeight() {return 57.*mm;} //rough estimation
 G4double PMT5inch::GetRadius() {return 63.5*mm;}
 G4double PMT5inch::GetPMTGlassThickness() {return 0.55*cm;} //currently the same as 10inch
 G4double PMT5inch::HitTimeSmearing(double Q, double TTSFF=1.0) { 
-#ifdef WCSIMPMTOBJECT_VERBOSE
-  G4cout << "+++++++++++++PMT5inch++++++++++++++++++++++++++++++++++++++++++ TTSFF = " << TTSFF << G4endl;
-#endif
+  printf("+++++++++++++PMT5inch++++++++++++++++++++++++++++++++++++++++++ TTSFF = %f \n", TTSFF);
   double timingConstant = 1.890;  //currently the same as 8inch
   double timingResolution = 0.33 + sqrt(timingConstant/Q); 
-  timingResolution *= TTSFF;
-  // looking at SK's jitter function for 20" tubes
+   timingResolution *= TTSFF;
+ // looking at SK's jitter function for 20" tubes
   if (timingResolution < 0.58) timingResolution=0.58;
   double Smearing_factor = G4RandGauss::shoot(0.0,timingResolution);
   return Smearing_factor;
@@ -478,9 +463,10 @@ G4double PMT5inch::HitTimeSmearing(double Q, double TTSFF=1.0) {
 // TD 2019.07.16
 double PMT5inch::SaturFactor(double Q, double threshold=-1) {
   if (threshold == -1) return 1; //no saturation case
-  double saturFactor = (Q < threshold) ? 1 : (100+0.008632*(threshold-Q))/100; //expression found for SK 20inch PMT, assumed to be correct for other types
-  return saturFactor;
+  double SaturFactor = (Q < threshold) ? 1 : (100+0.008632*(threshold-Q))/100; //expression found for SK 20inch PMT, assumed to be correct for other types
+  return SaturFactor; 
 }
+
 
 G4double* PMT5inch::Getqpe() //currently uses the same as 20inch
 {
@@ -596,7 +582,7 @@ G4double* PMT5inch::Getqpe() //currently uses the same as 20inch
     0.999995, 0.999995, 0.999996, 0.999996, 0.999996,
     0.999996, 0.999998, 0.999999, 1.000000, 1.000000,
     // Dummy element for noticing if the loop reached the end of the array
-    0.0
+    0.0 
   };
   return qpe0;
 }
@@ -615,191 +601,12 @@ G4double  PMT5inch::GetmaxQE(){
 }
 
 G4double PMT5inch::GetDarkRate(){
-  const G4double rate = 4.2*CLHEP::kilohertz;
+  const G4double rate = 4.2*CLHEP::kilohertz;   
   return rate;
 }
 
 G4double PMT5inch::GetDarkRateConversionFactor(){
   const G4double factor = 1.367;
-  return factor;
-}
-
-G4int PMT5inch::GetNbOfQEDefined(){
-  const G4int factor = 20;
-  return factor;
-}
-
-//////////////////////////////
-// 10 inch
-
-PMT10inch::PMT10inch(){}
-PMT10inch::~PMT10inch(){}
-
-G4String PMT10inch::GetPMTName() {G4String PMTName = "10inch"; return PMTName;}
-G4double PMT10inch::GetExposeHeight() {return 117.*mm;}
-G4double PMT10inch::GetRadius() {return 127.*mm;}
-G4double PMT10inch::GetPMTGlassThickness() {return 0.55*cm;}
-double PMT10inch::HitTimeSmearing(double Q, double TTSFF=1.0) {
-  double timingConstant = 2.0;
-  double timingResolution = 0.33 + sqrt(timingConstant/Q);
-  timingResolution *= TTSFF;
-  // looking at SK's jitter function for 20" tubes
-  if (timingResolution < 0.58) timingResolution=0.58;
-  double Smearing_factor = G4RandGauss::shoot(0.0,timingResolution);
-  return Smearing_factor;
-}
-
-double PMT10inch::SaturFactor(double Q, double threshold=-1) {
-  if (threshold == -1) return 1; //no saturation case
-  double saturFactor = (Q < threshold) ? 1 : (100+0.008632*(threshold-Q))/100; //expression found for SK 20inch PMT, assumed to be correct for other types
-  return saturFactor;
-}
-
-G4double* PMT10inch::Getqpe() //currently uses the same as 20inch
-{
-  static G4double qpe0[501]= {
-    // 1
-    0.000000, 0.000000, 0.000000, 0.000000, 0.000000,
-    0.000000, 0.000000, 0.000000, 0.000000, 0.000000,
-    0.000000, 0.000000, 0.000000, 0.000000, 0.000000,
-    0.000000, 0.000000, 0.000000, 0.000000, 0.000000,
-    0.000000, 0.000000, 0.000000, 0.000000, 0.000000,
-    0.000000, 0.000000, 0.000000, 0.000000, 0.000000,
-    0.000000, 0.000000, 0.000000, 0.000000, 0.000000,
-    0.000000, 0.000000, 0.000000, 0.000000, 0.000000,
-    0.000000, 0.000000, 0.000000, 0.000000, 0.000000,
-    0.000000, 0.000129, 0.000754, 0.004060, 0.028471,
-    // 2
-    0.068449, 0.115679, 0.164646, 0.203466, 0.235631,
-    0.262351, 0.282064, 0.303341, 0.320618, 0.338317,
-    0.357825, 0.371980, 0.385820, 0.398838, 0.413595,
-    0.428590, 0.444387, 0.461685, 0.482383, 0.502369,
-    0.520779, 0.540011, 0.559293, 0.579354, 0.599337,
-    0.619580, 0.639859, 0.659807, 0.679810, 0.699620,
-    0.718792, 0.737382, 0.755309, 0.772042, 0.788232,
-    0.803316, 0.817861, 0.831148, 0.844339, 0.855532,
-    0.866693, 0.876604, 0.886067, 0.894473, 0.902150,
-    0.909515, 0.915983, 0.922050, 0.927418, 0.932492,
-    // 3
-    0.936951, 0.940941, 0.944660, 0.948004, 0.951090,
-    0.953833, 0.956576, 0.958886, 0.961134, 0.963116,
-    0.964930, 0.966562, 0.968008, 0.969424, 0.970687,
-    0.971783, 0.972867, 0.973903, 0.974906, 0.975784,
-    0.976632, 0.977438, 0.978190, 0.978891, 0.979543,
-    0.980124, 0.980666, 0.981255, 0.981770, 0.982227,
-    0.982701, 0.983146, 0.983566, 0.983975, 0.984357,
-    0.984713, 0.985094, 0.985404, 0.985739, 0.986049,
-    0.986339, 0.986630, 0.986922, 0.987176, 0.987431,
-    0.987655, 0.987922, 0.988173, 0.988414, 0.988639,
-    // 4
-    0.988856, 0.989065, 0.989273, 0.989475, 0.989662,
-    0.989828, 0.990007, 0.990172, 0.990327, 0.990497,
-    0.990645, 0.990797, 0.990981, 0.991135, 0.991272,
-    0.991413, 0.991550, 0.991673, 0.991805, 0.991928,
-    0.992063, 0.992173, 0.992296, 0.992406, 0.992514,
-    0.992632, 0.992733, 0.992837, 0.992954, 0.993046,
-    0.993148, 0.993246, 0.993354, 0.993458, 0.993549,
-    0.993656, 0.993744, 0.993836, 0.993936, 0.994033,
-    0.994134, 0.994222, 0.994307, 0.994413, 0.994495,
-    0.994572, 0.994659, 0.994739, 0.994816, 0.994886,
-    // 5
-    0.994970, 0.995032, 0.995110, 0.995178, 0.995250,
-    0.995321, 0.995383, 0.995464, 0.995532, 0.995609,
-    0.995674, 0.995750, 0.995821, 0.995889, 0.995952,
-    0.996010, 0.996071, 0.996153, 0.996218, 0.996283,
-    0.996335, 0.996384, 0.996431, 0.996484, 0.996537,
-    0.996597, 0.996655, 0.996701, 0.996745, 0.996802,
-    0.996860, 0.996917, 0.996962, 0.997014, 0.997079,
-    0.997114, 0.997165, 0.997204, 0.997250, 0.997295,
-    0.997335, 0.997379, 0.997418, 0.997454, 0.997488,
-    0.997530, 0.997573, 0.997606, 0.997648, 0.997685,
-    // 6
-    0.997725, 0.997762, 0.997795, 0.997835, 0.997866,
-    0.997898, 0.997941, 0.997966, 0.997997, 0.998039,
-    0.998065, 0.998104, 0.998128, 0.998153, 0.998179,
-    0.998205, 0.998223, 0.998254, 0.998293, 0.998319,
-    0.998346, 0.998374, 0.998397, 0.998414, 0.998432,
-    0.998456, 0.998482, 0.998511, 0.998532, 0.998553,
-    0.998571, 0.998594, 0.998614, 0.998638, 0.998669,
-    0.998693, 0.998715, 0.998743, 0.998762, 0.998793,
-    0.998812, 0.998834, 0.998857, 0.998872, 0.998888,
-    0.998904, 0.998926, 0.998946, 0.998963, 0.998983,
-    // 7
-    0.999007, 0.999027, 0.999044, 0.999064, 0.999079,
-    0.999096, 0.999120, 0.999133, 0.999152, 0.999160,
-    0.999174, 0.999188, 0.999206, 0.999221, 0.999234,
-    0.999248, 0.999263, 0.999276, 0.999286, 0.999300,
-    0.999313, 0.999321, 0.999331, 0.999347, 0.999356,
-    0.999369, 0.999381, 0.999394, 0.999402, 0.999415,
-    0.999427, 0.999433, 0.999446, 0.999458, 0.999472,
-    0.999484, 0.999499, 0.999513, 0.999522, 0.999532,
-    0.999540, 0.999550, 0.999559, 0.999567, 0.999574,
-    0.999588, 0.999599, 0.999613, 0.999618, 0.999627,
-    // 8
-    0.999635, 0.999639, 0.999652, 0.999662, 0.999667,
-    0.999671, 0.999678, 0.999682, 0.999688, 0.999693,
-    0.999698, 0.999701, 0.999706, 0.999711, 0.999718,
-    0.999722, 0.999727, 0.999732, 0.999737, 0.999740,
-    0.999746, 0.999750, 0.999754, 0.999763, 0.999766,
-    0.999769, 0.999774, 0.999780, 0.999784, 0.999788,
-    0.999796, 0.999803, 0.999807, 0.999809, 0.999815,
-    0.999820, 0.999827, 0.999830, 0.999833, 0.999833,
-    0.999836, 0.999839, 0.999842, 0.999845, 0.999850,
-    0.999853, 0.999857, 0.999860, 0.999865, 0.999870,
-    // 9
-    0.999873, 0.999877, 0.999880, 0.999882, 0.999883,
-    0.999886, 0.999888, 0.999889, 0.999895, 0.999896,
-    0.999897, 0.999901, 0.999902, 0.999905, 0.999907,
-    0.999907, 0.999909, 0.999911, 0.999911, 0.999912,
-    0.999913, 0.999914, 0.999917, 0.999919, 0.999921,
-    0.999923, 0.999927, 0.999929, 0.999931, 0.999933,
-    0.999936, 0.999942, 0.999942, 0.999944, 0.999947,
-    0.999947, 0.999948, 0.999949, 0.999952, 0.999955,
-    0.999957, 0.999957, 0.999961, 0.999962, 0.999963,
-    0.999963, 0.999963, 0.999964, 0.999965, 0.999965,
-    // 10
-    0.999965, 0.999965, 0.999966, 0.999968, 0.999969,
-    0.999971, 0.999972, 0.999972, 0.999973, 0.999975,
-    0.999975, 0.999975, 0.999975, 0.999975, 0.999975,
-    0.999975, 0.999979, 0.999979, 0.999980, 0.999982,
-    0.999983, 0.999985, 0.999986, 0.999987, 0.999987,
-    0.999988, 0.999989, 0.999989, 0.999989, 0.999989,
-    0.999990, 0.999990, 0.999992, 0.999993, 0.999994,
-    0.999994, 0.999994, 0.999994, 0.999994, 0.999995,
-    0.999995, 0.999995, 0.999996, 0.999996, 0.999996,
-    0.999996, 0.999998, 0.999999, 1.000000, 1.000000,
-    // Dummy element for noticing if the loop reached the end of the array
-    0.0
-  };
-  return qpe0;
-}
-
-G4double* PMT10inch::GetQE(){
- static G4double QE[20] =
-   { 0.00, .0375, .13, .195, .22, .23, .24, .24, .225, .205,
-     .18, .16, .14, .085, .065, .05, .035, .02, .005, 0.0};
- return QE;
-}
-G4double* PMT10inch::GetQEWavelength(){static G4double wavelength[20] = { 280., 300., 320., 340., 360., 380., 400., 420., 440., 460., 480., 500., 520., 540., 560., 580., 600., 620., 640., 660.};
-  return wavelength;}
-
-G4double  PMT10inch::GetmaxQE(){
-  const G4double maxQE = 0.24;
-  return maxQE;
-}
-
-G4double PMT10inch::GetDarkRate(){
-  const G4double rate = 3.*CLHEP::kilohertz;   //R-7081??
-  return rate;
-}
-
-G4double PMT10inch::GetDarkRateConversionFactor(){
-  const G4double factor = 1.367;
-  return factor;
-}
-
-G4int PMT10inch::GetNbOfQEDefined(){
-  const G4int factor = 20;
   return factor;
 }
 
@@ -813,9 +620,7 @@ G4double PMT3inch::GetExposeHeight() {return 20.*mm;}
 G4double PMT3inch::GetRadius() {return 40.*mm;}
 G4double PMT3inch::GetPMTGlassThickness() {return 0.10*cm;}
 G4double PMT3inch::HitTimeSmearing(double Q, double TTSFF=1.0) { 
-#ifdef WCSIMPMTOBJECT_VERBOSE
-  G4cout << "+++++++++++++PMT3inch++++++++++++++++++++++++++++++++++++++++++ TTSFF = " << TTSFF << G4endl;
-#endif
+  printf("+++++++++++++PMT3inch++++++++++++++++++++++++++++++++++++++++++ TTSFF = %f \n", TTSFF);
   double timingConstant = 1.890; // 4ns FWHM when Q=1.0 
   double timingResolution = 0.33 + sqrt(timingConstant/Q); 
     timingResolution *= TTSFF;
@@ -828,9 +633,10 @@ G4double PMT3inch::HitTimeSmearing(double Q, double TTSFF=1.0) {
 // TD 2019.07.16
 double PMT3inch::SaturFactor(double Q, double threshold=-1) {
   if (threshold == -1) return 1; //no saturation case
-  double saturFactor = (Q < threshold) ? 1 : (100+0.008632*(threshold-Q))/100; //expression found for SK 20inch PMT, assumed to be correct for other types
-  return saturFactor;
+  double SaturFactor = (Q < threshold) ? 1 : (100+0.008632*(threshold-Q))/100; //expression found for SK 20inch PMT, assumed to be correct for other types
+  return SaturFactor; 
 }
+
 
 G4double* PMT3inch::Getqpe() //currently uses the same as 20inch
 {
@@ -974,188 +780,6 @@ G4double PMT3inch::GetDarkRateConversionFactor(){
   return factor;
 }
 
-G4int PMT3inch::GetNbOfQEDefined(){
-  const G4int factor = 20;
-  return factor;
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////
-// 3 inch (transit time spread of 4ns FWHM @1p.e.)
-// Adapted from ET Enterprise http://pprc.qmul.ac.uk/~zsoldos/9302B.pdf
-
-PMT3inch_ETEL9302B::PMT3inch_ETEL9302B(){}
-PMT3inch_ETEL9302B::~PMT3inch_ETEL9302B(){}
-
-G4String PMT3inch_ETEL9302B::GetPMTName() {G4String PMTName = "3inch_ETEL9302B"; return PMTName;}
-G4double PMT3inch_ETEL9302B::GetExposeHeight() {return 29.*mm;}
-G4double PMT3inch_ETEL9302B::GetRadius() {return 39.*mm;}
-G4double PMT3inch_ETEL9302B::GetPMTGlassThickness() {return 0.40*cm;}
-G4double PMT3inch_ETEL9302B::HitTimeSmearing(double Q, double TTSFF) {
-  double timingConstant = 1.890; // 4ns FWHM when Q=1.0
-  double timingResolution = 0.33 + sqrt(timingConstant/Q);
-  timingResolution *= TTSFF;
-  // looking at SK's jitter function for 20" tubes
-  if (timingResolution < 0.58) timingResolution=0.58;
-  double Smearing_factor = G4RandGauss::shoot(0.0,timingResolution);
-  return Smearing_factor;
-}
-
-// TD 2019.07.16
-double PMT3inch_ETEL9302B::SaturFactor(double Q, double threshold=-1) {
-  if (threshold == -1) return 1; //no saturation case
-  double saturFactor = (Q < threshold) ? 1 : (100+0.008632*(threshold-Q))/100; //expression found for SK 20inch PMT, assumed to be correct for other types
-  return saturFactor;
-}
-
-G4double* PMT3inch_ETEL9302B::Getqpe() //currently uses the same as 20inch
-{
-  static G4double qpe0[501]= {
-    // 1
-    0.000000, 0.000000, 0.000000, 0.000000, 0.000000,
-    0.000000, 0.000000, 0.000000, 0.000000, 0.000000,
-    0.000000, 0.000000, 0.000000, 0.000000, 0.000000,
-    0.000000, 0.000000, 0.000000, 0.000000, 0.000000,
-    0.000000, 0.000000, 0.000000, 0.000000, 0.000000,
-    0.000000, 0.000000, 0.000000, 0.000000, 0.000000,
-    0.000000, 0.000000, 0.000000, 0.000000, 0.000000,
-    0.000000, 0.000000, 0.000000, 0.000000, 0.000000,
-    0.000000, 0.000000, 0.000000, 0.000000, 0.000000,
-    0.000000, 0.000129, 0.000754, 0.004060, 0.028471,
-    // 2
-    0.068449, 0.115679, 0.164646, 0.203466, 0.235631,
-    0.262351, 0.282064, 0.303341, 0.320618, 0.338317,
-    0.357825, 0.371980, 0.385820, 0.398838, 0.413595,
-    0.428590, 0.444387, 0.461685, 0.482383, 0.502369,
-    0.520779, 0.540011, 0.559293, 0.579354, 0.599337,
-    0.619580, 0.639859, 0.659807, 0.679810, 0.699620,
-    0.718792, 0.737382, 0.755309, 0.772042, 0.788232,
-    0.803316, 0.817861, 0.831148, 0.844339, 0.855532,
-    0.866693, 0.876604, 0.886067, 0.894473, 0.902150,
-    0.909515, 0.915983, 0.922050, 0.927418, 0.932492,
-    // 3
-    0.936951, 0.940941, 0.944660, 0.948004, 0.951090,
-    0.953833, 0.956576, 0.958886, 0.961134, 0.963116,
-    0.964930, 0.966562, 0.968008, 0.969424, 0.970687,
-    0.971783, 0.972867, 0.973903, 0.974906, 0.975784,
-    0.976632, 0.977438, 0.978190, 0.978891, 0.979543,
-    0.980124, 0.980666, 0.981255, 0.981770, 0.982227,
-    0.982701, 0.983146, 0.983566, 0.983975, 0.984357,
-    0.984713, 0.985094, 0.985404, 0.985739, 0.986049,
-    0.986339, 0.986630, 0.986922, 0.987176, 0.987431,
-    0.987655, 0.987922, 0.988173, 0.988414, 0.988639,
-    // 4
-    0.988856, 0.989065, 0.989273, 0.989475, 0.989662,
-    0.989828, 0.990007, 0.990172, 0.990327, 0.990497,
-    0.990645, 0.990797, 0.990981, 0.991135, 0.991272,
-    0.991413, 0.991550, 0.991673, 0.991805, 0.991928,
-    0.992063, 0.992173, 0.992296, 0.992406, 0.992514,
-    0.992632, 0.992733, 0.992837, 0.992954, 0.993046,
-    0.993148, 0.993246, 0.993354, 0.993458, 0.993549,
-    0.993656, 0.993744, 0.993836, 0.993936, 0.994033,
-    0.994134, 0.994222, 0.994307, 0.994413, 0.994495,
-    0.994572, 0.994659, 0.994739, 0.994816, 0.994886,
-    // 5
-    0.994970, 0.995032, 0.995110, 0.995178, 0.995250,
-    0.995321, 0.995383, 0.995464, 0.995532, 0.995609,
-    0.995674, 0.995750, 0.995821, 0.995889, 0.995952,
-    0.996010, 0.996071, 0.996153, 0.996218, 0.996283,
-    0.996335, 0.996384, 0.996431, 0.996484, 0.996537,
-    0.996597, 0.996655, 0.996701, 0.996745, 0.996802,
-    0.996860, 0.996917, 0.996962, 0.997014, 0.997079,
-    0.997114, 0.997165, 0.997204, 0.997250, 0.997295,
-    0.997335, 0.997379, 0.997418, 0.997454, 0.997488,
-    0.997530, 0.997573, 0.997606, 0.997648, 0.997685,
-    // 6
-    0.997725, 0.997762, 0.997795, 0.997835, 0.997866,
-    0.997898, 0.997941, 0.997966, 0.997997, 0.998039,
-    0.998065, 0.998104, 0.998128, 0.998153, 0.998179,
-    0.998205, 0.998223, 0.998254, 0.998293, 0.998319,
-    0.998346, 0.998374, 0.998397, 0.998414, 0.998432,
-    0.998456, 0.998482, 0.998511, 0.998532, 0.998553,
-    0.998571, 0.998594, 0.998614, 0.998638, 0.998669,
-    0.998693, 0.998715, 0.998743, 0.998762, 0.998793,
-    0.998812, 0.998834, 0.998857, 0.998872, 0.998888,
-    0.998904, 0.998926, 0.998946, 0.998963, 0.998983,
-    // 7
-    0.999007, 0.999027, 0.999044, 0.999064, 0.999079,
-    0.999096, 0.999120, 0.999133, 0.999152, 0.999160,
-    0.999174, 0.999188, 0.999206, 0.999221, 0.999234,
-    0.999248, 0.999263, 0.999276, 0.999286, 0.999300,
-    0.999313, 0.999321, 0.999331, 0.999347, 0.999356,
-    0.999369, 0.999381, 0.999394, 0.999402, 0.999415,
-    0.999427, 0.999433, 0.999446, 0.999458, 0.999472,
-    0.999484, 0.999499, 0.999513, 0.999522, 0.999532,
-    0.999540, 0.999550, 0.999559, 0.999567, 0.999574,
-    0.999588, 0.999599, 0.999613, 0.999618, 0.999627,
-    // 8
-    0.999635, 0.999639, 0.999652, 0.999662, 0.999667,
-    0.999671, 0.999678, 0.999682, 0.999688, 0.999693,
-    0.999698, 0.999701, 0.999706, 0.999711, 0.999718,
-    0.999722, 0.999727, 0.999732, 0.999737, 0.999740,
-    0.999746, 0.999750, 0.999754, 0.999763, 0.999766,
-    0.999769, 0.999774, 0.999780, 0.999784, 0.999788,
-    0.999796, 0.999803, 0.999807, 0.999809, 0.999815,
-    0.999820, 0.999827, 0.999830, 0.999833, 0.999833,
-    0.999836, 0.999839, 0.999842, 0.999845, 0.999850,
-    0.999853, 0.999857, 0.999860, 0.999865, 0.999870,
-    // 9
-    0.999873, 0.999877, 0.999880, 0.999882, 0.999883,
-    0.999886, 0.999888, 0.999889, 0.999895, 0.999896,
-    0.999897, 0.999901, 0.999902, 0.999905, 0.999907,
-    0.999907, 0.999909, 0.999911, 0.999911, 0.999912,
-    0.999913, 0.999914, 0.999917, 0.999919, 0.999921,
-    0.999923, 0.999927, 0.999929, 0.999931, 0.999933,
-    0.999936, 0.999942, 0.999942, 0.999944, 0.999947,
-    0.999947, 0.999948, 0.999949, 0.999952, 0.999955,
-    0.999957, 0.999957, 0.999961, 0.999962, 0.999963,
-    0.999963, 0.999963, 0.999964, 0.999965, 0.999965,
-    // 10
-    0.999965, 0.999965, 0.999966, 0.999968, 0.999969,
-    0.999971, 0.999972, 0.999972, 0.999973, 0.999975,
-    0.999975, 0.999975, 0.999975, 0.999975, 0.999975,
-    0.999975, 0.999979, 0.999979, 0.999980, 0.999982,
-    0.999983, 0.999985, 0.999986, 0.999987, 0.999987,
-    0.999988, 0.999989, 0.999989, 0.999989, 0.999989,
-    0.999990, 0.999990, 0.999992, 0.999993, 0.999994,
-    0.999994, 0.999994, 0.999994, 0.999994, 0.999995,
-    0.999995, 0.999995, 0.999996, 0.999996, 0.999996,
-    0.999996, 0.999998, 0.999999, 1.000000, 1.000000,
-    // Dummy element for noticing if the loop reached the end of the array
-    0.0
-  };
-  return qpe0;
-}
-
-//PMT QE Info extrapolated from ETEL datasheet
-G4double* PMT3inch_ETEL9302B::GetQE(){
-  static G4double QE[20] = { 0.00, .005, .09, .21, .28, .30, .29, .28, .26, .24, .22, .18, .13, .075, .04, .02, .008, 0.00, 0.00, 0.00};
-  return QE;
-}
-G4double* PMT3inch_ETEL9302B::GetQEWavelength(){static G4double wavelength[20] = { 260., 280., 300., 320., 340., 360., 380., 400., 420., 440., 460., 480., 500., 520., 540., 560., 580., 600., 620., 640.};
-  return wavelength;}
-
-G4double  PMT3inch_ETEL9302B::GetmaxQE(){
-  const G4double maxQE = 0.30;
-  return maxQE;
-}
-
-// Should be actual PMT Dark Rate, not effective dark rate in detector including other LE noise
-G4double PMT3inch_ETEL9302B::GetDarkRate(){
-  const G4double rate = 400*CLHEP::hertz;   //SKI value set in SKDETSim.
-  return rate;
-}
-
-// Convert dark noise frequency to one before applying threshold of 0.25 pe, as that is what
-// will be simulated (WCSimWCDigitizer::AddPMTDarkRate)
-G4double PMT3inch_ETEL9302B::GetDarkRateConversionFactor(){
-  const G4double factor = 1.367;
-  return factor;
-}
-
-G4int PMT3inch_ETEL9302B::GetNbOfQEDefined(){
-  const G4int factor = 20;
-  return factor;
-}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 // 3 inch, better timing resolution (transit time spread of 2.5ns FWHM @1p.e.)
@@ -1170,8 +794,8 @@ G4double PMT3inchGT::GetPMTGlassThickness() {return 0.10*cm;}
 G4double PMT3inchGT::HitTimeSmearing(double Q, double TTSFF=1.0) {
   double timingConstant = 0.535; // 2.5ns FWHM when Q=1.0
   double timingResolution = 0.33 + sqrt(timingConstant/Q); 
-  timingResolution *= TTSFF;
-  // looking at SK's jitter function for 20" tubes
+   timingResolution *= TTSFF;
+ // looking at SK's jitter function for 20" tubes
   if (timingResolution < 0.58) timingResolution=0.58;
   double Smearing_factor = G4RandGauss::shoot(0.0,timingResolution);
   return Smearing_factor;
@@ -1180,8 +804,8 @@ G4double PMT3inchGT::HitTimeSmearing(double Q, double TTSFF=1.0) {
 // TD 2019.07.16
 double PMT3inchGT::SaturFactor(double Q, double threshold=-1) {
   if (threshold == -1) return 1; //no saturation case
-  double saturFactor = (Q < threshold) ? 1 : (100+0.008632*(threshold-Q))/100; //expression found for SK 20inch PMT, assumed to be correct for other types
-  return saturFactor;
+  double SaturFactor = (Q < threshold) ? 1 : (100+0.008632*(threshold-Q))/100; //expression found for SK 20inch PMT, assumed to be correct for other types
+  return SaturFactor; 
 }
 
 
@@ -1327,8 +951,175 @@ G4double PMT3inchGT::GetDarkRateConversionFactor(){
   return factor;
 }
 
-G4int PMT3inchGT::GetNbOfQEDefined(){
-  const G4int factor = 20;
+////////////////////////////////////////////////////////////////////////////////////////////////
+// 10 inch
+
+PMT10inch::PMT10inch(){}
+PMT10inch::~PMT10inch(){}
+
+G4String PMT10inch::GetPMTName() {G4String PMTName = "10inch"; return PMTName;}
+G4double PMT10inch::GetExposeHeight() {return 117.*mm;}
+G4double PMT10inch::GetRadius() {return 127.*mm;}
+G4double PMT10inch::GetPMTGlassThickness() {return 0.55*cm;}
+double PMT10inch::HitTimeSmearing(double Q, double TTSFF=1.0) { 
+  printf("+++++++++++PMT10inch++++++++++++++++++++++++++++++++++++++++++++ TTSFF = %f \n", TTSFF);
+  double timingConstant = 2.0; 
+  double timingResolution = 0.33 + sqrt(timingConstant/Q); 
+  timingResolution *= TTSFF;
+  // looking at SK's jitter function for 20" tubes
+  if (timingResolution < 0.58) timingResolution=0.58;
+  double Smearing_factor = G4RandGauss::shoot(0.0,timingResolution);
+  return Smearing_factor;
+}
+
+// TD 2019.07.16
+double PMT10inch::SaturFactor(double Q, double threshold=-1) {
+  if (threshold == -1) return 1; //no saturation case
+  double SaturFactor = (Q < threshold) ? 1 : (100+0.008632*(threshold-Q))/100; //expression found for SK 20inch PMT, assumed to be correct for other types
+  return SaturFactor; 
+}
+
+
+G4double* PMT10inch::Getqpe() //currently uses the same as 20inch
+   {
+  static G4double qpe0[501]= {
+    // 1
+    0.000000, 0.000000, 0.000000, 0.000000, 0.000000,
+    0.000000, 0.000000, 0.000000, 0.000000, 0.000000,
+    0.000000, 0.000000, 0.000000, 0.000000, 0.000000,
+    0.000000, 0.000000, 0.000000, 0.000000, 0.000000,
+    0.000000, 0.000000, 0.000000, 0.000000, 0.000000,
+    0.000000, 0.000000, 0.000000, 0.000000, 0.000000,
+    0.000000, 0.000000, 0.000000, 0.000000, 0.000000,
+    0.000000, 0.000000, 0.000000, 0.000000, 0.000000,
+    0.000000, 0.000000, 0.000000, 0.000000, 0.000000,
+    0.000000, 0.000129, 0.000754, 0.004060, 0.028471,
+    // 2
+    0.068449, 0.115679, 0.164646, 0.203466, 0.235631,
+    0.262351, 0.282064, 0.303341, 0.320618, 0.338317,
+    0.357825, 0.371980, 0.385820, 0.398838, 0.413595,
+    0.428590, 0.444387, 0.461685, 0.482383, 0.502369,
+    0.520779, 0.540011, 0.559293, 0.579354, 0.599337,
+    0.619580, 0.639859, 0.659807, 0.679810, 0.699620,
+    0.718792, 0.737382, 0.755309, 0.772042, 0.788232,
+    0.803316, 0.817861, 0.831148, 0.844339, 0.855532,
+    0.866693, 0.876604, 0.886067, 0.894473, 0.902150,
+    0.909515, 0.915983, 0.922050, 0.927418, 0.932492,
+    // 3
+    0.936951, 0.940941, 0.944660, 0.948004, 0.951090,
+    0.953833, 0.956576, 0.958886, 0.961134, 0.963116,
+    0.964930, 0.966562, 0.968008, 0.969424, 0.970687,
+    0.971783, 0.972867, 0.973903, 0.974906, 0.975784,
+    0.976632, 0.977438, 0.978190, 0.978891, 0.979543,
+    0.980124, 0.980666, 0.981255, 0.981770, 0.982227,
+    0.982701, 0.983146, 0.983566, 0.983975, 0.984357,
+    0.984713, 0.985094, 0.985404, 0.985739, 0.986049,
+    0.986339, 0.986630, 0.986922, 0.987176, 0.987431,
+    0.987655, 0.987922, 0.988173, 0.988414, 0.988639,
+    // 4
+    0.988856, 0.989065, 0.989273, 0.989475, 0.989662,
+    0.989828, 0.990007, 0.990172, 0.990327, 0.990497,
+    0.990645, 0.990797, 0.990981, 0.991135, 0.991272,
+    0.991413, 0.991550, 0.991673, 0.991805, 0.991928,
+    0.992063, 0.992173, 0.992296, 0.992406, 0.992514,
+    0.992632, 0.992733, 0.992837, 0.992954, 0.993046,
+    0.993148, 0.993246, 0.993354, 0.993458, 0.993549,
+    0.993656, 0.993744, 0.993836, 0.993936, 0.994033,
+    0.994134, 0.994222, 0.994307, 0.994413, 0.994495,
+    0.994572, 0.994659, 0.994739, 0.994816, 0.994886,
+    // 5
+    0.994970, 0.995032, 0.995110, 0.995178, 0.995250,
+    0.995321, 0.995383, 0.995464, 0.995532, 0.995609,
+    0.995674, 0.995750, 0.995821, 0.995889, 0.995952,
+    0.996010, 0.996071, 0.996153, 0.996218, 0.996283,
+    0.996335, 0.996384, 0.996431, 0.996484, 0.996537,
+    0.996597, 0.996655, 0.996701, 0.996745, 0.996802,
+    0.996860, 0.996917, 0.996962, 0.997014, 0.997079,
+    0.997114, 0.997165, 0.997204, 0.997250, 0.997295,
+    0.997335, 0.997379, 0.997418, 0.997454, 0.997488,
+    0.997530, 0.997573, 0.997606, 0.997648, 0.997685,
+    // 6
+    0.997725, 0.997762, 0.997795, 0.997835, 0.997866,
+    0.997898, 0.997941, 0.997966, 0.997997, 0.998039,
+    0.998065, 0.998104, 0.998128, 0.998153, 0.998179,
+    0.998205, 0.998223, 0.998254, 0.998293, 0.998319,
+    0.998346, 0.998374, 0.998397, 0.998414, 0.998432,
+    0.998456, 0.998482, 0.998511, 0.998532, 0.998553,
+    0.998571, 0.998594, 0.998614, 0.998638, 0.998669,
+    0.998693, 0.998715, 0.998743, 0.998762, 0.998793,
+    0.998812, 0.998834, 0.998857, 0.998872, 0.998888,
+    0.998904, 0.998926, 0.998946, 0.998963, 0.998983,
+    // 7
+    0.999007, 0.999027, 0.999044, 0.999064, 0.999079,
+    0.999096, 0.999120, 0.999133, 0.999152, 0.999160,
+    0.999174, 0.999188, 0.999206, 0.999221, 0.999234,
+    0.999248, 0.999263, 0.999276, 0.999286, 0.999300,
+    0.999313, 0.999321, 0.999331, 0.999347, 0.999356,
+    0.999369, 0.999381, 0.999394, 0.999402, 0.999415,
+    0.999427, 0.999433, 0.999446, 0.999458, 0.999472,
+    0.999484, 0.999499, 0.999513, 0.999522, 0.999532,
+    0.999540, 0.999550, 0.999559, 0.999567, 0.999574,
+    0.999588, 0.999599, 0.999613, 0.999618, 0.999627,
+    // 8
+    0.999635, 0.999639, 0.999652, 0.999662, 0.999667,
+    0.999671, 0.999678, 0.999682, 0.999688, 0.999693,
+    0.999698, 0.999701, 0.999706, 0.999711, 0.999718,
+    0.999722, 0.999727, 0.999732, 0.999737, 0.999740,
+    0.999746, 0.999750, 0.999754, 0.999763, 0.999766,
+    0.999769, 0.999774, 0.999780, 0.999784, 0.999788,
+    0.999796, 0.999803, 0.999807, 0.999809, 0.999815,
+    0.999820, 0.999827, 0.999830, 0.999833, 0.999833,
+    0.999836, 0.999839, 0.999842, 0.999845, 0.999850,
+    0.999853, 0.999857, 0.999860, 0.999865, 0.999870,
+    // 9
+    0.999873, 0.999877, 0.999880, 0.999882, 0.999883,
+    0.999886, 0.999888, 0.999889, 0.999895, 0.999896,
+    0.999897, 0.999901, 0.999902, 0.999905, 0.999907,
+    0.999907, 0.999909, 0.999911, 0.999911, 0.999912,
+    0.999913, 0.999914, 0.999917, 0.999919, 0.999921,
+    0.999923, 0.999927, 0.999929, 0.999931, 0.999933,
+    0.999936, 0.999942, 0.999942, 0.999944, 0.999947,
+    0.999947, 0.999948, 0.999949, 0.999952, 0.999955,
+    0.999957, 0.999957, 0.999961, 0.999962, 0.999963,
+    0.999963, 0.999963, 0.999964, 0.999965, 0.999965,
+    // 10
+    0.999965, 0.999965, 0.999966, 0.999968, 0.999969,
+    0.999971, 0.999972, 0.999972, 0.999973, 0.999975,
+    0.999975, 0.999975, 0.999975, 0.999975, 0.999975,
+    0.999975, 0.999979, 0.999979, 0.999980, 0.999982,
+    0.999983, 0.999985, 0.999986, 0.999987, 0.999987,
+    0.999988, 0.999989, 0.999989, 0.999989, 0.999989,
+    0.999990, 0.999990, 0.999992, 0.999993, 0.999994,
+    0.999994, 0.999994, 0.999994, 0.999994, 0.999995,
+    0.999995, 0.999995, 0.999996, 0.999996, 0.999996,
+    0.999996, 0.999998, 0.999999, 1.000000, 1.000000,
+    // Dummy element for noticing if the loop reached the end of the array
+    0.0 
+  };
+   return qpe0;
+  }
+
+G4double* PMT10inch::GetQE(){
+ static G4double QE[20] =
+   { 0.00, .0375, .13, .195, .22, .23, .24, .24, .225, .205,
+     .18, .16, .14, .085, .065, .05, .035, .02, .005, 0.0};
+ return QE;
+}
+G4double* PMT10inch::GetQEWavelength(){static G4double wavelength[20] = { 280., 300., 320., 340., 360., 380., 400., 420., 440., 460., 480., 500., 520., 540., 560., 580., 600., 620., 640., 660.};
+  return wavelength;}
+
+G4double  PMT10inch::GetmaxQE(){
+  const G4double maxQE = 0.24;
+  return maxQE;
+}
+
+G4double PMT10inch::GetDarkRate(){
+  const G4double rate = 3.*CLHEP::kilohertz;   //R-7081??
+  return rate;
+}
+
+G4double PMT10inch::GetDarkRateConversionFactor(){
+  const G4double factor = 1.367;
   return factor;
 }
 
@@ -1343,9 +1134,7 @@ G4double PMT10inchHQE::GetExposeHeight() {return 117.*mm;}
 G4double PMT10inchHQE::GetRadius() {return 127.*mm;}
 G4double PMT10inchHQE::GetPMTGlassThickness() {return 0.55*cm;}
 G4double PMT10inchHQE::HitTimeSmearing(double Q, double TTSFF=1.0) {
-#ifdef WCSIMPMTOBJECT_VERBOSE
-  G4cout << "++++++++++++++PMT10inchHQE+++++++++++++++++++++++++++++++++++++++++ TTSFF = " << TTSFF << G4endl;
-#endif
+  printf("++++++++++++++PMT10inchHQE+++++++++++++++++++++++++++++++++++++++++ TTSFF = %f \n", TTSFF);
   double timingConstant = 2.0; 
   double timingResolution = 0.33 + sqrt(timingConstant/Q); 
   timingResolution *= TTSFF;
@@ -1358,9 +1147,10 @@ G4double PMT10inchHQE::HitTimeSmearing(double Q, double TTSFF=1.0) {
 // TD 2019.07.16
 double PMT10inchHQE::SaturFactor(double Q, double threshold=-1) {
   if (threshold == -1) return 1; //no saturation case
-  double saturFactor = (Q < threshold) ? 1 : (100+0.008632*(threshold-Q))/100; //expression found for SK 20inch PMT, assumed to be correct for other types
-  return saturFactor;
+  double SaturFactor = (Q < threshold) ? 1 : (100+0.008632*(threshold-Q))/100; //expression found for SK 20inch PMT, assumed to be correct for other types
+  return SaturFactor; 
 }
+
 
 G4double* PMT10inchHQE::Getqpe() //currently uses the same as 20inch
    {
@@ -1505,11 +1295,6 @@ G4double PMT10inchHQE::GetDarkRateConversionFactor(){
   return factor;
 }
 
-G4int PMT10inchHQE::GetNbOfQEDefined(){
-  const G4int factor = 20;
-  return factor;
-}
-
 ////////////////////////////////////////////////////////////////////////////////////////////////
 // 12 inch HQE
 
@@ -1521,9 +1306,7 @@ G4double PMT12inchHQE::GetExposeHeight() {return 118.*mm;}
 G4double PMT12inchHQE::GetRadius() {return 152.4*mm;}
 G4double PMT12inchHQE::GetPMTGlassThickness() {return 0.55*cm;}
 G4double PMT12inchHQE::HitTimeSmearing(double Q, double TTSFF=1.0) {
-#ifdef WCSIMPMTOBJECT_VERBOSE
-  G4cout << "++++++++++++++++++PMT12inchHQE+++++++++++++++++++++++++++++++++++++ TTSFF = " << TTSFF << G4endl;
-#endif
+  printf("++++++++++++++++++PMT12inchHQE+++++++++++++++++++++++++++++++++++++ TTSFF = %f \n", TTSFF);
   double timingConstant = 2.0; 
   double timingResolution = 0.33 + sqrt(timingConstant/Q); 
   timingResolution *= TTSFF;
@@ -1536,13 +1319,13 @@ G4double PMT12inchHQE::HitTimeSmearing(double Q, double TTSFF=1.0) {
 // TD 2019.07.16
 double PMT12inchHQE::SaturFactor(double Q, double threshold=-1) {
   if (threshold == -1) return 1; //no saturation case
-  double saturFactor = (Q < threshold) ? 1 : (100+0.008632*(threshold-Q))/100; //expression found for SK 20inch PMT, assumed to be correct for other types
-  return saturFactor;
+  double SaturFactor = (Q < threshold) ? 1 : (100+0.008632*(threshold-Q))/100; //expression found for SK 20inch PMT, assumed to be correct for other types
+  return SaturFactor; 
 }
 
 
 G4double* PMT12inchHQE::Getqpe() //currently uses the same as 20inch
-{
+   {
   static G4double qpe0[501]= {
     // 1
     0.000000, 0.000000, 0.000000, 0.000000, 0.000000,
@@ -1658,7 +1441,7 @@ G4double* PMT12inchHQE::Getqpe() //currently uses the same as 20inch
     0.0 
   };
    return qpe0;
-}
+  }
 
 G4double* PMT12inchHQE::GetQE()//currently uses the same as the 10inchHQE
 {
@@ -1667,7 +1450,6 @@ G4double* PMT12inchHQE::GetQE()//currently uses the same as the 10inchHQE
       .2268,  .1971, .1641, .1102, .0727, .0499, .0323, .0178, .0061, 0.00};
  return QE;
 }
-
 G4double* PMT12inchHQE::GetQEWavelength(){static G4double wavelength[20] = { 280., 300., 320., 340., 360., 380., 400., 420., 440., 460., 480., 500., 520., 540., 560., 580., 600., 620., 640., 660.};
   return wavelength;}
 
@@ -1676,6 +1458,7 @@ G4double  PMT12inchHQE::GetmaxQE()//currently uses the same as the 10inchHQE
   const G4double maxQE = 0.3396;
   return maxQE;
 }
+
 
 G4double PMT12inchHQE::GetDarkRate(){
   const G4double rate = 4.2*CLHEP::kilohertz;   //as previous novis.mac (ref?)
@@ -1687,10 +1470,6 @@ G4double PMT12inchHQE::GetDarkRateConversionFactor(){
   return factor;
 }
 
-G4int PMT12inchHQE::GetNbOfQEDefined(){
-  const G4int factor = 20;
-  return factor;
-}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 // 20 inch HPD
@@ -1711,13 +1490,7 @@ G4String HPD20inchHQE::GetPMTName() {G4String PMTName = "HPD20inchHQE"; return P
 G4double HPD20inchHQE::GetExposeHeight() {return .192*m;}
 G4double HPD20inchHQE::GetRadius() {return .254*m;}
 G4double HPD20inchHQE::GetPMTGlassThickness() {return 0.3*cm;}
-
-// Implementation of pure-virtual base-class method
-//   double WCSimPMTObject::HitTimeSmearing(double, double)
-// The second argument is usually a multiplcative factor named TTSFF, but that
-// quantity is not used in this implementation.  The unused second argument
-// is anonymous to prevent compiler warnings about unused arguments.
-double HPD20inchHQE::HitTimeSmearing(double Q, double=1.0) {
+double HPD20inchHQE::HitTimeSmearing(double Q, double TTSFF=1.0) {
   G4double sig_param[4]={0.6718,0.1264,0.4450,11.87};
   G4double lambda_param[2]={0.3255,0.1142};
 
@@ -1737,8 +1510,8 @@ double HPD20inchHQE::HitTimeSmearing(double Q, double=1.0) {
 // TD 2019.07.16
 double HPD20inchHQE::SaturFactor(double Q, double threshold=-1) {
   if (threshold == -1) return 1; //no saturation case
-  double saturFactor = (Q < threshold) ? 1 : (100+0.008632*(threshold-Q))/100; //expression found for SK 20inch PMT, assumed to be correct for other types
-  return saturFactor;
+  double SaturFactor = (Q < threshold) ? 1 : (100+0.008632*(threshold-Q))/100; //expression found for SK 20inch PMT, assumed to be correct for other types
+  return SaturFactor; 
 }
 
 
@@ -1892,11 +1665,6 @@ G4double HPD20inchHQE::GetDarkRateConversionFactor(){
   return factor;
 }
 
-G4int HPD20inchHQE::GetNbOfQEDefined(){
-  const G4int factor = 20;
-  return factor;
-}
-
 ////////////////////////////////////////////////////////////////////////////////////////////////
 // 12 inch HPD
 
@@ -1909,13 +1677,7 @@ G4String HPD12inchHQE::GetPMTName() {G4String PMTName = "HPD12inchHQE"; return P
 G4double HPD12inchHQE::GetExposeHeight() {return 118.*mm;} //Assumed to be the same as the PMT12inchHQE.
 G4double HPD12inchHQE::GetRadius() {return 152.4*mm;} //12 inches
 G4double HPD12inchHQE::GetPMTGlassThickness() {return 0.3*cm;} 
-
-// Implementation of pure-virtual base-class method
-//   double WCSimPMTObject::HitTimeSmearing(double, double)
-// The second argument is usually a multiplcative factor named TTSFF, but that
-// quantity is not used in this implementation.  The unused second argument
-// is anonymous to prevent compiler warnings about unused arguments.
-double HPD12inchHQE::HitTimeSmearing(double Q, double=1.0) {
+double HPD12inchHQE::HitTimeSmearing(double Q, double TTSFF=1.0) {
   G4double sig_param[4]={0.6718,0.1264,0.4450,11.87};
   G4double lambda_param[2]={0.3255,0.1142};
 
@@ -1935,8 +1697,8 @@ double HPD12inchHQE::HitTimeSmearing(double Q, double=1.0) {
 // TD 2019.07.16
 double HPD12inchHQE::SaturFactor(double Q, double threshold=-1) {
   if (threshold == -1) return 1; //no saturation case
-  double saturFactor = (Q < threshold) ? 1 : (100+0.008632*(threshold-Q))/100; //expression found for SK 20inch PMT, assumed to be correct for other types
-  return saturFactor;
+  double SaturFactor = (Q < threshold) ? 1 : (100+0.008632*(threshold-Q))/100; //expression found for SK 20inch PMT, assumed to be correct for other types
+  return SaturFactor; 
 }
 
 
@@ -2054,9 +1816,9 @@ G4double* HPD12inchHQE::Getqpe()
     1.000000, 1.000000, 1.000000, 1.000000, 1.000000,
     1.000000, 1.000000, 1.000000, 1.000000, 1.000000,
     // Dummy element for noticing if the loop reached the end of the array                        
-    0.0  };
-  return qpe0;
-   }
+  0.0  };
+   return qpe0;
+  }
 
 G4double* HPD12inchHQE::GetQEWavelength(){
   static G4double wavelength_value[20] = { 280., 300., 320., 340., 360., 380., 400., 420., 440., 460., 480., 500., 520., 540., 560., 580., 600., 620., 640., 660.};
@@ -2089,11 +1851,6 @@ G4double HPD12inchHQE::GetDarkRateConversionFactor(){
   return factor;
 }
 
-G4int HPD12inchHQE::GetNbOfQEDefined(){
-  const G4int factor = 20;
-  return factor;
-}
-
 ////////////////////////////////////////////////////////////////////////////////////////////////
 // 20 inch HQE Box and Line PMT
 
@@ -2116,12 +1873,7 @@ G4double BoxandLine20inchHQE::GetExposeHeight() {return .18*m;}
 G4double BoxandLine20inchHQE::GetRadius() {return .254*m;}
 G4double BoxandLine20inchHQE::GetPMTGlassThickness() {return 0.4*cm;}
 
-// Implementation of pure-virtual base-class method
-//   double WCSimPMTObject::HitTimeSmearing(double, double)
-// The second argument is usually a multiplcative factor named TTSFF, but that
-// quantity is not used in this implementation.  The unused second argument
-// is anonymous to prevent compiler warnings about unused arguments.
-double BoxandLine20inchHQE::HitTimeSmearing(double Q, double=1.0) {
+double BoxandLine20inchHQE::HitTimeSmearing(double Q, double TTSFF=1.0) {
   G4double sig_param[4]={0.6314,0.06260,0.5711,23.96};
   G4double lambda_param[2]={0.4113,0.07827};
   G4double sigma_lowcharge = sig_param[0]*(exp(-sig_param[1]*Q)+sig_param[2]);
@@ -2140,8 +1892,8 @@ double BoxandLine20inchHQE::HitTimeSmearing(double Q, double=1.0) {
 // TD 2019.07.16
 double BoxandLine20inchHQE::SaturFactor(double Q, double threshold=-1) {
   if (threshold == -1) return 1; //no saturation case
-  double saturFactor = (Q < threshold) ? 1 : (100+0.008632*(threshold-Q))/100; //expression found for SK 20inch PMT, assumed to be correct for other types
-  return saturFactor;
+  double SaturFactor = (Q < threshold) ? 1 : (100+0.008632*(threshold-Q))/100; //expression found for SK 20inch PMT, assumed to be correct for other types
+  return SaturFactor; 
 }
 
 
@@ -2297,14 +2049,10 @@ G4double BoxandLine20inchHQE::GetDarkRate(){
 }
 
 G4double BoxandLine20inchHQE::GetDarkRateConversionFactor(){
-  const G4double factor = 1.110;
+  const G4double factor = 1.126;
   return factor;
 }
 
-G4int BoxandLine20inchHQE::GetNbOfQEDefined(){
-  const G4int factor = 20;
-  return factor;
-}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 // 12 inch HQE Box and Line PMT
@@ -2319,12 +2067,7 @@ G4double BoxandLine12inchHQE::GetExposeHeight() {return 118.*mm;}
 G4double BoxandLine12inchHQE::GetRadius() {return 152.4*mm;}
 G4double BoxandLine12inchHQE::GetPMTGlassThickness() {return 0.4*cm;}
 
-// Implementation of pure-virtual base-class method
-//   double WCSimPMTObject::HitTimeSmearing(double, double)
-// The second argument is usually a multiplcative factor named TTSFF, but that
-// quantity is not used in this implementation.  The unused second argument
-// is anonymous to prevent compiler warnings about unused arguments.
-double BoxandLine12inchHQE::HitTimeSmearing(double Q, double=1.0) {
+double BoxandLine12inchHQE::HitTimeSmearing(double Q, double TTSFF=1.0) {
   G4double sig_param[4]={0.6314,0.06260,0.5711,23.96};
   G4double lambda_param[2]={0.4113,0.07827};
 
@@ -2344,9 +2087,10 @@ double BoxandLine12inchHQE::HitTimeSmearing(double Q, double=1.0) {
 // TD 2019.07.16
 double BoxandLine12inchHQE::SaturFactor(double Q, double threshold=-1) {
   if (threshold == -1) return 1; //no saturation case
-  double saturFactor = (Q < threshold) ? 1 : (100+0.008632*(threshold-Q))/100; //expression found for SK 20inch PMT, assumed to be correct for other types
-  return saturFactor;
+  double SaturFactor = (Q < threshold) ? 1 : (100+0.008632*(threshold-Q))/100; //expression found for SK 20inch PMT, assumed to be correct for other types
+  return SaturFactor; 
 }
+
 
 G4double* BoxandLine12inchHQE::Getqpe()
 {
@@ -2483,7 +2227,6 @@ G4double BoxandLine12inchHQE::GetmaxQE(){
   const G4double maxQE = 0.315*correctionFactor;
   return maxQE;
 }
-
 G4double* BoxandLine12inchHQE::GetCollectionEfficiencyArray(){  
   static G4double CE[10] = { 95., 95., 95., 95., 95., 95., 95., 95., 95., 95.};
   return CE;
@@ -2498,11 +2241,6 @@ G4double BoxandLine12inchHQE::GetDarkRate(){
 
 G4double BoxandLine12inchHQE::GetDarkRateConversionFactor(){
   const G4double factor = 1.126;
-  return factor;
-}
-
-G4int BoxandLine12inchHQE::GetNbOfQEDefined(){
-  const G4int factor = 20;
   return factor;
 }
  
@@ -2530,7 +2268,7 @@ G4double PMT3inchR12199_02::GetPMTGlassThickness() {return 0.1*cm;}     // TF: f
 
 // Currently based on 8" (instead of 20")
 // But shifted to requirements (2ns TTS FWHM) for 1 pe
-double PMT3inchR12199_02::HitTimeSmearing(double Q, double TTSFF=1.0/*, double linearity = 0. meaning linearity default = false*/) {
+double PMT3inchR12199_02::HitTimeSmearing(double Q, double TTSFF=1.0/*, double linearity = 0. /*meaning linearity default = false*/) {
   double timingConstant = 1.890;
   double timingResolution;
   double Smearing_factor;
@@ -2556,8 +2294,8 @@ double PMT3inchR12199_02::HitTimeSmearing(double Q, double TTSFF=1.0/*, double l
 // TD 2019.07.16
 double PMT3inchR12199_02::SaturFactor(double Q, double threshold=-1) {
   if (threshold == -1) return 1; //no saturation case
-  double saturFactor = (Q < threshold) ? 1 : (100+0.008632*(threshold-Q))/100; //expression found for SK 20inch PMT, assumed to be correct for other types
-  return saturFactor;
+  double SaturFactor = (Q < threshold) ? 1 : (100+0.008632*(threshold-Q))/100; //expression found for SK 20inch PMT, assumed to be correct for other types
+  return SaturFactor; 
 }
 
 
@@ -2710,7 +2448,6 @@ G4double* PMT3inchR12199_02::GetQE(){
   */
   return QE;
 }
-
 G4double PMT3inchR12199_02::GetmaxQE(){
   G4double correctionFactor = 1./0.73;//Correction factor added in July 2015 to scale the output of B&L PDs to 2.27 times the 20" PMTS based on Hamamatsu simulation. This was done in Pull Request #98 and will be removed once a more permanent solution is found.
 
@@ -2737,11 +2474,8 @@ G4double  PMT3inchR12199_02::GetDarkRateConversionFactor(){
   const G4double factor = 1.126;
   return factor;
 }
+ 
 
-G4int PMT3inchR12199_02::GetNbOfQEDefined(){
-  const G4int factor = 20;
-  return factor;
-}
 
 /////////////////////////////////////////////////////////////////////
 /// TF: experimental for mPMT/nuPRISM
@@ -2756,12 +2490,7 @@ G4double PMT4inchR12199_02::GetExposeHeight() {return .0276*m;}  //or 0.021 for 
 G4double PMT4inchR12199_02::GetRadius() {return .054*m;}        //radius at z = exposeheight of photocathode. In ConstructPMT, we use sphereRadius for the radius of curvature
 G4double PMT4inchR12199_02::GetPMTGlassThickness() {return 0.1*cm;}
 
-// Implementation of pure-virtual base-class method
-//   double WCSimPMTObject::HitTimeSmearing(double, double)
-// The second argument is usually a multiplcative factor named TTSFF, but that
-// quantity is not used in this implementation.  The unused second argument
-// is anonymous to prevent compiler warnings about unused arguments.
-double PMT4inchR12199_02::HitTimeSmearing(double Q, double=1.0) {
+double PMT4inchR12199_02::HitTimeSmearing(double Q, double TTSFF=1.0) {
   G4double sig_param[4]={0.6314,0.06260,0.5711,23.96};
   G4double lambda_param[2]={0.4113,0.07827};
   G4double sigma_lowcharge = sig_param[0]*(exp(-sig_param[1]*Q)+sig_param[2]);
@@ -2780,9 +2509,11 @@ double PMT4inchR12199_02::HitTimeSmearing(double Q, double=1.0) {
 // TD 2019.07.16
 double PMT4inchR12199_02::SaturFactor(double Q, double threshold=-1) {
   if (threshold == -1) return 1; //no saturation case
-  double saturFactor = (Q < threshold) ? 1 : (100+0.008632*(threshold-Q))/100; //expression found for SK 20inch PMT, assumed to be correct for other types
-  return saturFactor;
+  double SaturFactor = (Q < threshold) ? 1 : (100+0.008632*(threshold-Q))/100; //expression found for SK 20inch PMT, assumed to be correct for other types
+  return SaturFactor; 
 }
+
+
 
 G4double* PMT4inchR12199_02::Getqpe()
 {
@@ -2935,11 +2666,6 @@ G4double  PMT4inchR12199_02::GetDarkRateConversionFactor(){
   return factor;
 }
 
-G4int PMT4inchR12199_02::GetNbOfQEDefined(){
-  const G4int factor = 20;
-  return factor;
-}
-
 ////////////////////////////////////////////////////////////////////////
 ///// TF experimental feature: suppose there is a 5" PMT with the same properties
 //    as 3"
@@ -2955,12 +2681,7 @@ G4double PMT5inchR12199_02::GetExposeHeight() {return .0338*m;}  //or 0.0259 for
 G4double PMT5inchR12199_02::GetRadius() {return .0675*m;}        //radius at z = exposeheight of photocathode. In ConstructPMT, we use sphereRadius for the radius of curvature
 G4double PMT5inchR12199_02::GetPMTGlassThickness() {return 0.1*cm;}
 
-// Implementation of pure-virtual base-class method
-//   double WCSimPMTObject::HitTimeSmearing(double, double)
-// The second argument is usually a multiplcative factor named TTSFF, but that
-// quantity is not used in this implementation.  The unused second argument
-// is anonymous to prevent compiler warnings about unused arguments.
-double PMT5inchR12199_02::HitTimeSmearing(double Q, double=1.0) {
+double PMT5inchR12199_02::HitTimeSmearing(double Q, double TTSFF=1.0) {
   G4double sig_param[4]={0.6314,0.06260,0.5711,23.96};
   G4double lambda_param[2]={0.4113,0.07827};
   G4double sigma_lowcharge = sig_param[0]*(exp(-sig_param[1]*Q)+sig_param[2]);
@@ -2979,9 +2700,11 @@ double PMT5inchR12199_02::HitTimeSmearing(double Q, double=1.0) {
 // TD 2019.07.16
 double PMT5inchR12199_02::SaturFactor(double Q, double threshold=-1) {
   if (threshold == -1) return 1; //no saturation case
-  double saturFactor = (Q < threshold) ? 1 : (100+0.008632*(threshold-Q))/100; //expression found for SK 20inch PMT, assumed to be correct for other types
-  return saturFactor;
+  double SaturFactor = (Q < threshold) ? 1 : (100+0.008632*(threshold-Q))/100; //expression found for SK 20inch PMT, assumed to be correct for other types
+  return SaturFactor; 
 }
+
+
 
 G4double* PMT5inchR12199_02::Getqpe()
 {
@@ -3135,11 +2858,6 @@ G4double PMT5inchR12199_02::GetDarkRateConversionFactor(){
   const G4double factor = 1.126;
   return factor;
 }
-
-G4int PMT5inchR12199_02::GetNbOfQEDefined(){
-  const G4int factor = 20;
-  return factor;
-}
  
 ///////////////////////////////////////////////////////////////////////////////
 // BQ: PMT 3" 14374
@@ -3150,19 +2868,14 @@ PMT3inchR14374::~PMT3inchR14374(){}
 
 G4String PMT3inchR14374::GetPMTName() {G4String PMTName = "PMT3inchR14374"; return PMTName;}
 G4double PMT3inchR14374::GetExposeHeight() {return 0.02*m;}          //.0153*m;} //.0200*m;}  //from TechSheet for 3in (only photocathode would be 15.3mm h, for a radius as photocathode of 36 mm)
-G4double PMT3inchR14374::GetRadius() {return 0.04*m;}            //0.036*m;} //.0400*m;}   //radius at z = exposeheight of photocathode. In ConstructPMT, we use sphereRadius for the radius of curvature
+    G4double PMT3inchR14374::GetRadius() {return 0.04*m;}            //0.036*m;} //.0400*m;}   //radius at z = exposeheight of photocathode. In ConstructPMT, we use sphereRadius for the radius of curvature
 G4double PMT3inchR14374::GetPMTGlassThickness() {return 0.1*cm;}     // TF: from Hamamatsu Tech Sheet, photocathode >=36mm, so this yields in thickness <= 2.35mm. Currently will use 1mm (larger cathode)
                                                                         // until measured!
 
 
 // Currently based on 8" (instead of 20")
 // But shifted to requirements (2ns TTS FWHM) for 1 pe
-// Implementation of pure-virtual base-class method
-//   double WCSimPMTObject::HitTimeSmearing(double, double)
-// The first argument is usually a charge, Q, but that quantity is not used
-// in this implementation.  The unused first argument is anonymous to prevent
-// compiler warnings about unused arguments.
-double PMT3inchR14374::HitTimeSmearing(double, double TTSFF=1.0) {
+double PMT3inchR14374::HitTimeSmearing(double Q, double TTSFF=1.0) {
   //double timingConstant = 0.75;//B. Quilain, to match the TTS = 1.4ns (sigma at 0.6) measured at 1 p.e. 
   double timingResolution = 0.6;//B. Quilain, to match the TTS = 1.4ns (sigma at 0.6) measured at 1 p.e. 
   timingResolution *= TTSFF;
@@ -3176,9 +2889,12 @@ double PMT3inchR14374::HitTimeSmearing(double, double TTSFF=1.0) {
 // TD 2019.07.16
 double PMT3inchR14374::SaturFactor(double Q, double threshold=-1) {
   if (threshold == -1) return 1; //no saturation case
-  double saturFactor = (Q < threshold) ? 1 : (100+0.008632*(threshold-Q))/100; //expression found for SK 20inch PMT, assumed to be correct for other types
-  return saturFactor;
+  double SaturFactor = (Q < threshold) ? 1 : (100+0.008632*(threshold-Q))/100; //expression found for SK 20inch PMT, assumed to be correct for other types
+  return SaturFactor; 
 }
+
+
+
 
 // To Add!!
 G4double* PMT3inchR14374::Getqpe()
@@ -3294,11 +3010,12 @@ G4double* PMT3inchR14374::Getqpe()
     1.000000, 1.000000, 1.000000, 1.000000, 1.000000,
     1.000000, 1.000000, 1.000000, 1.000000, 1.000000,
     1.000000, 1.000000, 1.000000, 1.000000, 1.000000,
-    // Dummy element for noticing if the loop reached the end of the array
+    // Dummy element for noticing if the loop reached the end of the array                        
     0.0  };
   return qpe0;
 
 }
+
 
 // TF: Used WebPlotDigitizer on Fig.2a from VLVnT13 proceedings, red curve (average)
 G4double* PMT3inchR14374::GetQEWavelength(){
@@ -3313,14 +3030,14 @@ G4double* PMT3inchR14374::GetQE(){
   G4double correctionFactor = 1./0.73;//Correction factor added in July 2015 to scale the output of B&L PDs to 2.27 times the 20" PMTS based on Hamamatsu simulation. This was done in Pull Request #98 and will be removed once a more permanent solution is found.
   // TF: While the main reason is the 20" SK PMT, this correction factor has been applied
   // to the B&L PMT. Therefore all PMTs have to corrected in a similar way, unfortunately.
-
+  
   static G4double QE[21] =
-  { .0787*correctionFactor, .1838*correctionFactor, .2401*correctionFactor, .2521*correctionFactor, .2695*correctionFactor, .2676*correctionFactor, .2593*correctionFactor, .2472*correctionFactor, .2276*correctionFactor,
-    .1970*correctionFactor,  .1777*correctionFactor, .1547*correctionFactor, .1033*correctionFactor, .0727*correctionFactor, .0587*correctionFactor, .0470*correctionFactor, .0372*correctionFactor, .0285*correctionFactor, .0220*correctionFactor, .0130*correctionFactor, .0084*correctionFactor};
+    { .0787*correctionFactor, .1838*correctionFactor, .2401*correctionFactor, .2521*correctionFactor, .2695*correctionFactor, .2676*correctionFactor, .2593*correctionFactor, .2472*correctionFactor, .2276*correctionFactor,
+      .1970*correctionFactor,  .1777*correctionFactor, .1547*correctionFactor, .1033*correctionFactor, .0727*correctionFactor, .0587*correctionFactor, .0470*correctionFactor, .0372*correctionFactor, .0285*correctionFactor, .0220*correctionFactor, .0130*correctionFactor, .0084*correctionFactor};
+  
 
 
-
-
+  
   /* TEST: make QE the same!! 
   static G4double QE[20] =
     { 0.00*correctionFactor, .0008*correctionFactor, .1255*correctionFactor, .254962*correctionFactor, .2930*correctionFactor, .3127*correctionFactor, .3130*correctionFactor, .2994*correctionFactor, .2791*correctionFactor, .2491*correctionFactor,
@@ -3337,7 +3054,7 @@ G4double PMT3inchR14374::GetmaxQE(){
   return maxQE;
 }
 
-G4double* PMT3inchR14374::GetCollectionEfficiencyArray(){
+G4double* PMT3inchR14374::GetCollectionEfficiencyArray(){  
   static G4double CE[10] = { 95., 95., 95., 95., 95., 95., 95., 95., 95., 95.};
   return CE;
 }
@@ -3351,55 +3068,6 @@ G4double PMT3inchR14374::GetDarkRate(){
 
 // Arbitrary at the moment
 G4double  PMT3inchR14374::GetDarkRateConversionFactor(){
-  const G4double factor = 1.110;
+  const G4double factor = 1.126;
   return factor;
-}
-
-G4int PMT3inchR14374::GetNbOfQEDefined(){
-  const G4int factor = 20;
-  return factor;
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////
-// COMBINED PMTS CLASS
-// Goal is to instantiate purely virtual WCSimPMTObject Classes to contained an extended
-//  QE information of several PMTs collection
-// Useful for applying QE in stacking action when several PMTs collection are defined
-
-
-WCSimBasicPMTObject::WCSimBasicPMTObject(){
-}
-
-WCSimBasicPMTObject::WCSimBasicPMTObject(std::map<G4double,G4double> mQE){
-  mapQE=mQE;
-  std::map<G4double, G4double>::iterator itr;
-  for(itr = mQE.begin(); itr != mQE.end(); itr++) {
-    wavelength.push_back(itr->first);
-    QE.push_back(itr->second);
-  }
-}
-
-WCSimBasicPMTObject::WCSimBasicPMTObject(std::vector<G4double> wl,std::vector<G4double> qe,G4double max){
-  wavelength=wl;
-  QE=qe;
-  maxQE=max;
-}
-
-void WCSimBasicPMTObject::DefineQEHist(std::map<G4double,G4double> mQE){
-
-  if (gQE != NULL) {
-	  delete gQE;
-	  gQE = nullptr;
-  }
-  gQE = new TGraph(mQE.size());
-  G4int iPt=0;
-  std::map<G4double, G4double>::iterator itr;
-  for(itr = mQE.begin(); itr != mQE.end(); itr++) {
-    gQE->SetPoint(iPt,itr->first,itr->second);
-    iPt++;
-  }
-}
-
-WCSimBasicPMTObject::~WCSimBasicPMTObject(){
-  delete gQE;
 }
