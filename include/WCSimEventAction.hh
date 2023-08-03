@@ -65,7 +65,6 @@ public:
 		    WCSimWCDigitsCollection*,
 		    WCSimWCTriggeredDigitsCollection*,
 		    G4String detectorElement);
-  
 
 private:
   G4int WCSimEventFindStartingVolume( G4ThreeVector vtx);
@@ -81,6 +80,8 @@ private:
   bool     RelativeHitTime;
   bool     ConstructedDAQClasses;
   bool     SavedOptions;
+
+  G4int fEvNum;
 };
 
 

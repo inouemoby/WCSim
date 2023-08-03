@@ -70,25 +70,7 @@ void WCSimRunAction::BeginOfRunAction(const G4Run* /*aRun*/)
       fSettingsInputTree->SetBranchAddress("NuIdfdPos",fNuPlanePos);
       fSettingsInputTree->SetBranchAddress("DetRadius",&fNuPrismRadius);
     }
-    if(fSettingsInputTree){
-      fSettingsOutputTree = fSettingsInputTree->CloneTree(0);
-    }
-    else{
-      fSettingsOutputTree = new TTree("Settings","Settings");
-    }
-
-    fSettingsOutputTree->Branch("WCXRotation", WCXRotation, "WCXRotation[3]/D");
-    fSettingsOutputTree->Branch("WCYRotation", WCYRotation, "WCYRotation[3]/D");
-    fSettingsOutputTree->Branch("WCZRotation", WCZRotation, "WCZRotation[3]/D");
-    fSettingsOutputTree->Branch("WCDetCentre", WCDetCentre, "WCDetCentre[3]/D");
-    fSettingsOutputTree->Branch("WCDetRadius", &WCDetRadius, "WCDetRadius/D");
-    fSettingsOutputTree->Branch("WCDetHeight", &WCDetHeight, "WCDetHeight/D");
-
-#ifdef GIT_HASH
-    const char* gitHash = GIT_HASH;
-    fSettingsOutputTree->Branch("GitHash", (void*)gitHash, "GitHash/C");
-#endif
-  }      
+  }
 
   if(useTimer) {
     timer.Reset();
@@ -117,14 +99,37 @@ void WCSimRunAction::BeginOfRunAction(const G4Run* /*aRun*/)
     TFile* hfile = new TFile(rootname.c_str(),"RECREATE","WCSim ROOT file");
     hfile->SetCompressionLevel(2);
     
+    if(wcsimdetector->GetIsNuPrism()){
+      if(fSettingsInputTree){
+	fSettingsOutputTree = fSettingsInputTree->CloneTree(0);
+      }
+      else{
+	fSettingsOutputTree = new TTree("Settings","Settings");
+      }
+
+      fSettingsOutputTree->Branch("WCXRotation", WCXRotation, "WCXRotation[3]/D");
+      fSettingsOutputTree->Branch("WCYRotation", WCYRotation, "WCYRotation[3]/D");
+      fSettingsOutputTree->Branch("WCZRotation", WCZRotation, "WCZRotation[3]/D");
+      fSettingsOutputTree->Branch("WCDetCentre", WCDetCentre, "WCDetCentre[3]/D");
+      fSettingsOutputTree->Branch("WCDetRadius", &WCDetRadius, "WCDetRadius/D");
+      fSettingsOutputTree->Branch("WCDetHeight", &WCDetHeight, "WCDetHeight/D");
+
+#ifdef GIT_HASH
+      const char* gitHash = GIT_HASH;
+      fSettingsOutputTree->Branch("GitHash", (void*)gitHash, "GitHash/C");
+#endif
+    }//nuPRISM settings tree
+
     // Event tree
     WCSimTree = new TTree("wcsimT","WCSim Tree");
     
     wcsimrootsuperevent = new WCSimRootEvent(); //empty list
     wcsimrootsuperevent2 = new WCSimRootEvent(); //empty list
+    wcsimrootsuperevent_OD = new WCSimRootEvent(); //empty list
     //  wcsimrootsuperevent->AddSubEvent(); // make at least one event
     wcsimrootsuperevent->Initialize(); // make at least one event
     wcsimrootsuperevent2->Initialize(); // make at least one event
+    wcsimrootsuperevent_OD->Initialize(); // make at least one event
     Int_t branchStyle = 1; //new style by default
     TTree::SetBranchStyle(branchStyle);
     Int_t bufsize = 64000;
@@ -132,6 +137,7 @@ void WCSimRunAction::BeginOfRunAction(const G4Run* /*aRun*/)
     //  TBranch *branch = tree->Branch("wcsimrootsuperevent", "Jhf2kmrootsuperevent", &wcsimrootsuperevent, bufsize,0);
     wcsimrooteventbranch = WCSimTree->Branch("wcsimrootevent", "WCSimRootEvent", &wcsimrootsuperevent, bufsize,2);
     wcsimrooteventbranch2 = WCSimTree->Branch("wcsimrootevent2", "WCSimRootEvent", &wcsimrootsuperevent2, bufsize,2);
+    wcsimrooteventbranch_OD = WCSimTree->Branch("wcsimrootevent_OD", "WCSimRootEvent", &wcsimrootsuperevent_OD, bufsize,2);
     
     // Geometry tree
     geoTree = new TTree("wcsimGeoT","WCSim Geometry Tree");
@@ -342,6 +348,7 @@ void WCSimRunAction::BeginOfRunAction(const G4Run* /*aRun*/)
     flatRooTrackerTree->Branch("NuParentDecMode",&evNRooTracker->NuParentDecMode,"NuParentDecMod/I");
     flatRooTrackerTree->Branch("NuParentPdg",&evNRooTracker->NuParentPdg,"NuParentPdg/I");
     //// WORK IN PROGRESS
+    /*
     double      NuParentDecP4 [4]; 
     double      NuParentDecX4 [4]; 
     double       NuCospibm;         
@@ -443,53 +450,16 @@ void WCSimRunAction::BeginOfRunAction(const G4Run* /*aRun*/)
     double OrigTreePOT;
     double TimeInSpill;
     int TruthVertexID;
-
+    */
+  }//SaveRooTracker
   
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  }
-  
+  //set Tree for gathering photon info inside stepping action
+  /* Remove this feature. No longer needed.
+  photonTree = new TTree("photons","Photons in WLS Tree");
+  wcsimPhoEvt = new photonEvt();
+  photonTree->Branch("phoEvt",wcsimPhoEvt,
+                     "trackID/I:parentID/I:pos[3]/D:distance/D:wl/D:proc/I");
+  */
 }
 
 void WCSimRunAction::EndOfRunAction(const G4Run*)
@@ -498,6 +468,14 @@ void WCSimRunAction::EndOfRunAction(const G4Run*)
 //G4cout<<"Number of times waterTube hit: " << numberOfTimesWaterTubeHit<<G4endl;
 //   G4cout << ((double(numberOfTimesMRDHit)+double(numberOfTimesFGDHit))/double(numberOfEventsGenerated))*100.
 // 	 << "% hit FGD or MRD" << G4endl;
+//G4cout << "Number of times OD hit: " << numberOfTimesMRDHit << G4endl;
+//G4cout << "Number of times FGD hit: "    << numberOfTimesFGDHit << G4endl;
+//G4cout << "Number of times lArD hit: "  << numberOfTimeslArDHit << G4endl;
+//G4cout<<"Number of times waterTube hit: " << numberOfTimesWaterTubeHit<<G4endl;
+//   G4cout << ((double(numberOfTimesMRDHit)+double(numberOfTimesFGDHit))/double(numberOfEventsGenerated))*100.
+// 	 << "% hit FGD or MRD" << G4endl;
+//   G4cout << "Number of times Catcher hit: " << numberOfTimesCatcherHit<<G4endl;
+//   G4cout << "Number of times Rock hit: " << numberOfTimesRockHit<<G4endl;
 //  G4cout << (double(numberOfTimesCatcherHit)/double(numberOfEventsGenerated))*100.
 //        << "% through-going (hit Catcher)" << G4endl;
 
@@ -531,7 +509,6 @@ void WCSimRunAction::EndOfRunAction(const G4Run*)
 
   delete evNtup;
 
-
   if(useDefaultROOTout){
 
     // Close the Root file at the end of the run
@@ -547,9 +524,9 @@ void WCSimRunAction::EndOfRunAction(const G4Run*)
     // is taken care of by the file close
     delete wcsimrootsuperevent; wcsimrootsuperevent=0;
     delete wcsimrootsuperevent2; wcsimrootsuperevent2=0;
+    delete wcsimrootsuperevent_OD; wcsimrootsuperevent_OD=0;
     delete wcsimrootgeom; wcsimrootgeom=0;
   }
-
 
   if(useTimer) {
     timer.Stop();
@@ -565,14 +542,16 @@ void WCSimRunAction::FillGeoTree(){
   G4int geo_type;
   G4double cylinfo[3];
   G4double pmtradius;
+  G4double pmtradiusOD;
   G4int numpmt;
+  G4int numpmtOD;
   G4int orientation;
   G4double pmtradius2;//Hybrid configuration
   G4int numpmt2;//Hybrid configuration
-  G4int orientation2;//Hybrid configuration
+  //G4int orientation2;//Hybrid configuration
   Double_t offset[3];
  
-  Double_t rotation[3];
+  //Double_t rotation[3];
 
   Int_t tubeNo;
   Int_t mPMTNo = -1;
@@ -601,13 +580,16 @@ void WCSimRunAction::FillGeoTree(){
 
 
   pmtradius = wcsimdetector->GetPMTSize1();
-  numpmt = wcsimdetector->GetTotalNumPmts();
   pmtradius2 = 4.0;//B.Q debug, Temp wcsimdetector->GetPMTSize1();
+  pmtradiusOD = wcsimdetector->GetODPMTSize();
+  numpmt = wcsimdetector->GetTotalNumPmts();
   numpmt2 = wcsimdetector->GetTotalNumPmts2();//Hybrid configuration
+  numpmtOD = wcsimdetector->GetTotalNumODPmts();
   orientation = 0;
   
   wcsimrootgeom-> SetWCPMTRadius(pmtradius);
   wcsimrootgeom-> SetWCPMTRadius(pmtradius2,true);
+  wcsimrootgeom-> SetODWCPMTRadius(pmtradiusOD);
   wcsimrootgeom-> SetOrientation(orientation);
   
   G4ThreeVector offset1= wcsimdetector->GetWCOffset();
@@ -641,9 +623,9 @@ void WCSimRunAction::FillGeoTree(){
 
       if(fSettingsInputTree){
           fSettingsInputTree->GetEntry(0);
-          double z_offset = fNuPlanePos[2]/100.0;
+          float z_offset = fNuPlanePos[2]/100.0;
           WCDetCentre[2] += z_offset;
-          std::cout << "WCDetCentre[2] = " << WCDetCentre[2] << std::endl;
+          G4cout << "WCDetCentre[2] = " << WCDetCentre[2] << G4endl;
       }
 
       fSettingsOutputTree->Fill();
@@ -666,7 +648,7 @@ void WCSimRunAction::FillGeoTree(){
     wcsimrootgeom-> SetPMT(i,tubeNo,mPMTNo, mPMT_pmtNo, cylLoc,rot,pos,true,false);
   }
   if (fpmts->size() != (unsigned int)numpmt) {
-    G4cout << "Mismatch between number of pmts and pmt list in geofile.txt!!"<<G4endl;
+    G4cout << "Mismatch between number of ID pmts and pmt list in geofile.txt!!"<<G4endl;
     G4cout << fpmts->size() <<" vs. "<< numpmt <<G4endl;
   }
   //Hybrid version
@@ -689,12 +671,31 @@ void WCSimRunAction::FillGeoTree(){
     G4cout << "Mismatch between number of pmts and pmt list in geofile.txt!!"<<G4endl;
     G4cout << fpmts2->size() <<" vs. "<< numpmt2 <<G4endl;
   }
+  //OD
+  std::vector<WCSimPmtInfo*> *fODpmts = wcsimdetector->Get_ODPmts();
+  for (unsigned int i=0;i!=fODpmts->size();i++){
+    pmt = ((WCSimPmtInfo*)fODpmts->at(i));
+    pos[0] = pmt->Get_transx();
+    pos[1] = pmt->Get_transy();
+    pos[2] = pmt->Get_transz();
+    rot[0] = pmt->Get_orienx();
+    rot[1] = pmt->Get_orieny();
+    rot[2] = pmt->Get_orienz();
+    tubeNo = pmt->Get_tubeid();
+    cylLoc = pmt->Get_cylocation();
+    wcsimrootgeom-> SetODPMT(i,tubeNo,cylLoc,rot,pos,true);
+  }
+  if (fODpmts->size() != (unsigned int)numpmtOD) {
+    G4cout << "Mismatch between number of OD pmts and pmt list in geofile.txt!!"<<G4endl;
+    G4cout << fODpmts->size() <<" vs. "<< numpmtOD <<G4endl;
+  }
 
   wcsimrootgeom-> SetWCNumPMT(numpmt,false);
   wcsimrootgeom-> SetWCNumPMT(numpmt2,true);
+  wcsimrootgeom-> SetODWCNumPMT(numpmtOD);
 
   geoTree->Fill();
-  TFile* hfile = geoTree->GetCurrentFile();
+  //TFile* hfile = geoTree->GetCurrentFile();
   //hfile->Write(); 
   if(wcsimdetector->GetIsNuPrism()) fSettingsOutputTree->Write();
 //  if(fSettingsInputTree) fSettingsInputTree->Close();
@@ -780,9 +781,9 @@ void WCSimRunAction::FillFlatGeoTree(){
  
     if(fSettingsInputTree){
       fSettingsInputTree->GetEntry(0);
-      double z_offset = fNuPlanePos[2]/100.0;
+      float z_offset = fNuPlanePos[2]/100.0;
       WCDetCentre[2] += z_offset;
-      std::cout << "WCDetCentre[2] = " << WCDetCentre[2] << std::endl;
+      G4cout << "WCDetCentre[2] = " << WCDetCentre[2] << G4endl;
     }
   } 
 
