@@ -12,7 +12,6 @@
 #include "TClonesArray.h"
 #include <string>
 #include <map>
-#include <iostream>
 
 #include "WCSimEnumerations.hh"
 
@@ -213,7 +212,7 @@ private:
   int                    RandomSeed;
   WCSimRandomGenerator_t RandomGenerator;
   
-  ClassDef(WCSimRootOptions,4)
+  ClassDef(WCSimRootOptions,5)
 };
 
 

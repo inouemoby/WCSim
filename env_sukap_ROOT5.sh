@@ -32,10 +32,10 @@ cd "$pwd"
 # WCSim
 ############################
 #export BRANCH_NAME=$(git rev-parse --abbrev-ref HEAD)
-export BRANCH_NAME=/nuPRISM/develop
+export BRANCH_NAME=/IWCD/develop
 #export WCSIMDIR=$(pwd)-build/ROOT5/$BRANCH_NAME
 ### If this directory doesn't work well, maybe you should change it by yourself
-export WCSIMDIR=../WCSim-build/ROOT5/nuPRISM/develop
+export WCSIMDIR=../WCSim-build/ROOT5/IWCD/develop
 
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$WCSIMDIR
 
