@@ -40,6 +40,7 @@
 /WCSim/Construct
 
 # This is the updated IWCD geometry as of 20230630, plus OD
+# Not added this part to code yet
 #/WCSim/WCgeom IWCD_mPMT_WithOD
 #/WCSim/Construct
 
@@ -293,7 +294,7 @@
 /mygen/nickelposition 0. 0. 0. cm 
 
 ## Needed to prevent other decay than Bi-214
-/grdm/nucleusLimits 214 214 83 83 
+#/grdm/nucleusLimits 214 214 83 83 
 ## if you need to use time bias
 #/grdm/decayBiasProfile data/biasprofile.dat
 #/grdm/analogueMC 0
@@ -308,7 +309,7 @@
 /WCSimIO/SaveRooTracker 0
 
 ## change the name of the output root file, default = wcsim.root
-/rootFile wcsim_output.root
+/WCSimIO/RootFile ./rootFile/wcsim_output.root
 
 ## set a timer running on WCSimRunAction
 #/WCSimIO/Timer false

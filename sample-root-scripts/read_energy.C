@@ -10,7 +10,7 @@
 #include "/home/zhw1999/WCSim-build/ROOT5/nuPRISM/develop/include/WCSimRootTools.hh"
 */
 
-void read_energy2(const char *filename = "../rootfile/wcsim_output.root")
+void read_energy(const char *filename = "../rootfile/wcsim_output.root")
 {
     char *wcsimdirenv;
     wcsimdirenv = getenv("WCSIMDIR");
