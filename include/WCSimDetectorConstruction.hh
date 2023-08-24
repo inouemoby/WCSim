@@ -101,19 +101,23 @@ public:
   void SetNuPrismBeamTest_mPMTGeometry();
   void SetNuPrismShort_mPMTGeometry();
   void SetDefaultNuPrismGeometry();
+  void SetIWCDGeometry(); // IWCD with mPMTs, updated geometry as of 20230630
+  //void SetIWCD_WithOD_Geometry(); // Same as above with OD
   void UpdateGeometry();
+  // void UpdateODGeo();
 
   G4String GetDetectorName()      {return WCDetectorName;}
   G4double GetWaterTubeLength()   {return WCLength;}
   G4double GetWaterTubePosition() {return WCPosition;}
   G4double GetPMTSize()           {return WCPMTRadius;}
+  // G4double GetODPMTSize()         {return WCPMTODRadius;}
   G4String GetPMTName()			  {return WCPMTName;}
   G4int    GetMyConfiguration()   {return myConfiguration;}
   G4double GetGeo_Dm(G4int);
   G4int    GetTotalNumPmts() {return totalNumPMTs;}
   G4int    GetTotalNum_mPmts() {return totalNum_mPMTs;}         
   G4int    GetTotalNumPmts2() {return totalNumPMTs2;}//For the hybrid config
-  G4int    GetTotalNum_mPmts2() {return totalNum_mPMTs2;}//For the hybrid config         
+  G4int    GetTotalNum_mPmts2() {return totalNum_mPMTs2;}//For the hybrid config      
 
   G4int    GetPMT_QE_Method(){return PMT_QE_Method;}
   G4double GetwaterTank_Length() {return waterTank_Length;} 
@@ -335,6 +339,7 @@ public:
 
   std::vector<WCSimPmtInfo*>* Get_Pmts() {return &fpmts;}
   std::vector<WCSimPmtInfo*>* Get_Pmts2() {return &fpmts2;}//For the hybrid config
+  // std::vector<WCSimPmtInfo*>* Get_ODPmts() {return &fODpmts;}
 
   void   SetDetectorHeight(G4double height) {
     WCIDHeight = height;
@@ -370,6 +375,10 @@ public:
   
   G4double GetIDRadius()     {return WCIDRadius;}
   G4double GetIDHeight()     {return WCIDHeight;}
+
+  // bool GetIsODConstructed(){return isODConstructed;}
+  // bool GetIsCombinedPMTCollectionDefined(){return isCombinedPMTCollectionDefined;}
+
 private:
 
 

@@ -40,6 +40,7 @@
 /WCSim/Construct
 
 # This is the updated IWCD geometry as of 20230630, plus OD
+# Not added this part to code yet
 #/WCSim/WCgeom IWCD_mPMT_WithOD
 #/WCSim/Construct
 
@@ -308,7 +309,7 @@
 /WCSimIO/SaveRooTracker 0
 
 ## change the name of the output root file, default = wcsim.root
-/rootFile wcsim_output.root
+/WCSimIO/rootFile ../rootFile/wcsim_output.root
 
 ## set a timer running on WCSimRunAction
 #/WCSimIO/Timer false

@@ -41,6 +41,7 @@ WCSimDetectorMessenger::WCSimDetectorMessenger(WCSimDetectorConstruction* WCSimD
 			  "Cylinder_60x74_3inchmPMT_40perCent\n"
 			  "Cylinder_60x74_3inch_14perCent\n"
 			  "Cylinder_60x74_3inch_40perCent\n"
+			  "IWCD_mPMT\n"
 			  "TestSinglemPMT\n"
                          );
   PMTConfig->SetParameterName("PMTConfig", false);
@@ -70,6 +71,7 @@ WCSimDetectorMessenger::WCSimDetectorMessenger(WCSimDetectorConstruction* WCSimD
 			   "Cylinder_60x74_3inchmPMT_40perCent "
 			   "Cylinder_60x74_3inch_14perCent "
 			   "Cylinder_60x74_3inch_40perCent "
+			   "IWCD_mPMT "
 			   "TestSinglemPMT\n"
                            );
   PMTConfig->AvailableForStates(G4State_PreInit, G4State_Idle);
@@ -487,7 +489,11 @@ void WCSimDetectorMessenger::SetNewValue(G4UIcommand* command,G4String newValue)
 		} else if ( newValue == "nuPRISMShort_mPMT") {
 		  WCSimDetector->SetIsNuPrism(true);
 		  WCSimDetector->SetNuPrismShort_mPMTGeometry();
-		} else
+		} else if ( newValue == "IWCD_mPMT") {
+		  WCSimDetector->SetIsNuPrism(true);
+		  WCSimDetector->SetIWCDGeometry();
+		}
+		else
 		  G4cout << "That geometry choice is not defined!" << G4endl;
 	}
 

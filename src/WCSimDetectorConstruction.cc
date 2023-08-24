@@ -23,6 +23,8 @@ std::map<int, G4Transform3D> WCSimDetectorConstruction::tubeIDMap;
 std::map<int, std::pair<int, int> > WCSimDetectorConstruction::mPMTIDMap;
 std::map<int, G4Transform3D> WCSimDetectorConstruction::tubeIDMap2;
 std::map<int, std::pair<int, int> > WCSimDetectorConstruction::mPMTIDMap2;
+// std::map<int, G4Transform3D> WCSimDetectorConstruction::ODtubeIDMap;
+// std::map<int, std::pair<int, int> > WCSimDetectorConstruction::mPMTODMap;
 //std::map<int, cyl_location>  WCSimDetectorConstruction::tubeCylLocation;
 //hash_map<std::string, int, hash<std::string> > 
 //WCSimDetectorConstruction::tubeLocationMap_old;    //deprecated !!
@@ -33,6 +35,8 @@ std::unordered_map<std::string, int, std::hash<std::string> >
 WCSimDetectorConstruction::tubeLocationMap;
 std::unordered_map<std::string, int, std::hash<std::string> >         
 WCSimDetectorConstruction::tubeLocationMap2;
+// std::unordered_map<std::string, int, std::hash<std::string> >         
+// WCSimDetectorConstruction::ODtubeLocationMap;
 
 WCSimDetectorConstruction::WCSimDetectorConstruction(G4int DetConfig,WCSimTuningParameters* WCSimTuningPars):WCSimTuningParams(WCSimTuningPars)
 {
