@@ -72,9 +72,9 @@ libWCSim.a : $(ROOTOBJS)
 	ar clq $@ $(ROOTOBJS) 
 
 ./WCSimRootDict.cxx : $(ROOTSRC)
-	rootcint  -f ./WCSimRootDict.cxx -c -I./include -I$(shell root-config --incdir) WCSimRootEvent.hh WCSimRootGeom.hh  WCSimPmtInfo.hh WCSimEnumerations.hh WCSimRootOptions.hh WCSimRootTools.hh TJNuBeamFlux.hh TNRooTrackerVtx.hh WCSimRootLinkDef.hh
+#	rootcint  -f ./WCSimRootDict.cxx -c -I./include -I$(shell root-config --incdir) WCSimRootEvent.hh WCSimRootGeom.hh  WCSimPmtInfo.hh WCSimEnumerations.hh WCSimRootOptions.hh WCSimRootTools.hh TJNuBeamFlux.hh TNRooTrackerVtx.hh WCSimRootLinkDef.hh
 # In case the dictionary does not compile, try the -p flag
-#	rootcint  -f ./WCSimRootDict.cxx -c -p -I./include -I$(shell root-config --incdir) WCSimRootEvent.hh WCSimRootGeom.hh  WCSimPmtInfo.hh WCSimEnumerations.hh WCSimRootOptions.hh TJNuBeamFlux.hh TNRooTrackerVtx.hh WCSimRootLinkDef.hh
+	rootcint  -f ./WCSimRootDict.cxx -c -p -I./include -I$(shell root-config --incdir) WCSimRootEvent.hh WCSimRootGeom.hh  WCSimPmtInfo.hh WCSimEnumerations.hh WCSimRootOptions.hh TJNuBeamFlux.hh TNRooTrackerVtx.hh WCSimRootLinkDef.hh
 
 rootcint: ./WCSimRootDict.cxx
 
