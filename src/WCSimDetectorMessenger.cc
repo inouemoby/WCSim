@@ -31,17 +31,28 @@ WCSimDetectorMessenger::WCSimDetectorMessenger(WCSimDetectorConstruction* WCSimD
                           "HyperK_HybridmPMT\n"
                           "HyperK_HybridmPMT10PC\n"
                           "HyperK_HybridFake\n"
+			  "HyperK_20perCent\n"
+			  "HyperKWithOD\n"
+			  "HyperK20pcWithOD\n"
+ 			  "HyperK_HybridmPMT_WithOD\n"
+        "HyperK_HybridmPMT_WithOD_Realistic\n"
+        "HyperK_HybridmPMT_IDonly_Realistic\n"
 			  "EggShapedHyperK\n"
 			  "EggShapedHyperK_withHPD\n"
                           "nuPRISM\n"
                           "nuPRISM_mPMT\n"
 			  "nuPRISMBeamTest_mPMT\n"
+			  "nuPRISMBeamTest_16cShort_mPMT\n"
     			  "nuPRISMShort_mPMT\n"
+        "IWCD_mPMT\n"
+        "IWCD_mPMT_WithOD\n"
+        "IWCD_mPMT_WithOD_OptionA\n"
+        "IWCD_mPMT_WithOD_OptionC\n"
+        "IWCD_mPMT_WithOD_Old\n"
 			  "Cylinder_60x74_3inchmPMT_14perCent\n"
 			  "Cylinder_60x74_3inchmPMT_40perCent\n"
 			  "Cylinder_60x74_3inch_14perCent\n"
 			  "Cylinder_60x74_3inch_40perCent\n"
-			  "IWCD_mPMT\n"
 			  "TestSinglemPMT\n"
                          );
   PMTConfig->SetParameterName("PMTConfig", false);
@@ -61,17 +72,28 @@ WCSimDetectorMessenger::WCSimDetectorMessenger(WCSimDetectorConstruction* WCSimD
 			   "HyperK_HybridmPMT "
 			   "HyperK_HybridmPMT10PC "
 			   "HyperK_HybridFake "
+			   "HyperK_20perCent "
+			   "HyperKWithOD "
+			   "HyperK20pcWithOD "
+			   "HyperK_HybridmPMT_WithOD "
+			   "HyperK_HybridmPMT_WithOD_Realistic "
+			   "HyperK_HybridmPMT_IDonly_Realistic "
 			   "EggShapedHyperK "
 			   "EggShapedHyperK_withHPD "
                            "nuPRISM "
                            "nuPRISM_mPMT "
 			   "nuPRISMBeamTest_mPMT "
+			   "nuPRISMBeamTest_16cShort_mPMT\n"
 			   "nuPRISMShort_mPMT "
+         "IWCD_mPMT "
+         "IWCD_mPMT_WithOD "
+         "IWCD_mPMT_WithOD_OptionA "
+         "IWCD_mPMT_WithOD_OptionC "
+         "IWCD_mPMT_WithOD_Old "
 			   "Cylinder_60x74_3inchmPMT_14perCent "
 			   "Cylinder_60x74_3inchmPMT_40perCent "
 			   "Cylinder_60x74_3inch_14perCent "
 			   "Cylinder_60x74_3inch_40perCent "
-			   "IWCD_mPMT "
 			   "TestSinglemPMT\n"
                            );
   PMTConfig->AvailableForStates(G4State_PreInit, G4State_Idle);
@@ -97,6 +119,11 @@ WCSimDetectorMessenger::WCSimDetectorMessenger(WCSimDetectorConstruction* WCSimD
   DopingConcentration->SetGuidance("Set percentage concentration Gadolinium doping");
   DopingConcentration->SetParameterName("DopingConcentration", false);
   DopingConcentration->AvailableForStates(G4State_PreInit, G4State_Idle);
+
+  BGOPlacement = new G4UIcmdWithABool("/WCSim/BGOPlacement", this);
+  BGOPlacement->SetGuidance("Place BGO Scintillation Crystal Inside Detector");
+  BGOPlacement->SetParameterName("BGOPlacement", false);
+  BGOPlacement->AvailableForStates(G4State_PreInit, G4State_Idle);
 
   PMTSize = new G4UIcmdWithAString("/WCSim/WCPMTsize",this);
   PMTSize->SetGuidance("Set alternate PMT size for the WC (Must be entered after geometry details are set).");
@@ -173,6 +200,135 @@ WCSimDetectorMessenger::WCSimDetectorMessenger(WCSimDetectorConstruction* WCSimD
   waterTank_Length->SetDefaultUnit("mm");
   waterTank_Length->SetUnitCandidates("mm cm m");
 
+  /////////////////////////////////
+  ////////////// OD ///////////////
+  /////////////////////////////////
+
+  // PMT size
+  PMTODRadius = new G4UIcmdWithAString("/WCSim/HyperKOD/PMTODRadius", this);
+  PMTODRadius->SetGuidance("Set the size of OD PMTs (only for Hyper-K Geom atm)");
+  PMTODRadius->SetGuidance("Available options are:\n"
+						  "3inch\n"
+						  "5inch\n"
+						  "8inch\n");
+  PMTODRadius->SetParameterName("PMTODRadius", false);
+  PMTODRadius->SetCandidates("3inch "
+							 "5inch "
+                             "8inch ");
+  PMTODRadius->AvailableForStates(G4State_PreInit, G4State_Idle);
+
+  // OD Lateral water depth
+  ODLateralWaterDepth = new G4UIcmdWithADoubleAndUnit("/WCSim/HyperKOD/ODLateralWaterDepth", this);
+  ODLateralWaterDepth->SetGuidance("Set water depth of LATERAL segment of the OD (unit: m cm mm).");
+  ODLateralWaterDepth->SetParameterName("ODLateralWaterDepth", true);
+  ODLateralWaterDepth->SetDefaultValue(1.);
+  ODLateralWaterDepth->SetUnitCategory("Length");
+  ODLateralWaterDepth->SetDefaultUnit("m");
+  ODLateralWaterDepth->SetUnitCandidates("m cm mm");
+
+  // OD Height water depth
+  ODHeightWaterDepth = new G4UIcmdWithADoubleAndUnit("/WCSim/HyperKOD/ODHeightWaterDepth", this);
+  ODHeightWaterDepth->SetGuidance("Set water depth of HEIGHT segment of the OD (unit: m cm mm).");
+  ODHeightWaterDepth->SetParameterName("ODHeightWaterDepth", true);
+  ODHeightWaterDepth->SetDefaultValue(2.);
+  ODHeightWaterDepth->SetUnitCategory("Length");
+  ODHeightWaterDepth->SetDefaultUnit("m");
+  ODHeightWaterDepth->SetUnitCandidates("m cm mm");
+
+  // OD Dead space size
+  ODDeadSpace = new G4UIcmdWithADoubleAndUnit("/WCSim/HyperKOD/ODDeadSpace", this);
+  ODDeadSpace->SetGuidance("Set dead space width between ID and OD (unit: m cm mm).");
+  ODDeadSpace->SetParameterName("ODDeadSpace", true);
+  ODDeadSpace->SetDefaultValue(0.6);
+  ODDeadSpace->SetUnitCategory("Length");
+  ODDeadSpace->SetDefaultUnit("m");
+  ODDeadSpace->SetUnitCandidates("m cm");
+
+  // OD Tyvek sheet thickness
+  ODTyvekSheetThickness = new G4UIcmdWithADoubleAndUnit("/WCSim/HyperKOD/ODTyvekSheetThickness", this);
+  ODTyvekSheetThickness->SetGuidance("Set OD Tyvek sheet thickness (unit: mm).");
+  ODTyvekSheetThickness->SetParameterName("ODTyvekSheetThickness", true);
+  ODTyvekSheetThickness->SetDefaultValue(2.);
+  ODTyvekSheetThickness->SetUnitCategory("Length");
+  ODTyvekSheetThickness->SetDefaultUnit("mm");
+  ODTyvekSheetThickness->SetUnitCandidates("mm");
+
+  // OD WLS Plates thickness
+  ODWLSPlatesThickness = new G4UIcmdWithADoubleAndUnit("/WCSim/HyperKOD/ODWLSPlatesThickness", this);
+  ODWLSPlatesThickness->SetGuidance("Set OD WLS plates thickness (unit: cm mm).");
+  ODWLSPlatesThickness->SetParameterName("ODWLSPlatesThickness", true);
+  ODWLSPlatesThickness->SetDefaultValue(1.);
+  ODWLSPlatesThickness->SetUnitCategory("Length");
+  ODWLSPlatesThickness->SetDefaultUnit("cm");
+  ODWLSPlatesThickness->SetUnitCandidates("cm mm");
+
+  // OD WLS Plates length
+  ODWLSPlatesLength = new G4UIcmdWithADoubleAndUnit("/WCSim/HyperKOD/ODWLSPlatesLength", this);
+  ODWLSPlatesLength->SetGuidance("Set OD WLS plates length (unit: cm mm).");
+  ODWLSPlatesLength->SetParameterName("ODWLSPlatesLength", true);
+  ODWLSPlatesLength->SetDefaultValue(60.);
+  ODWLSPlatesLength->SetUnitCategory("Length");
+  ODWLSPlatesLength->SetDefaultUnit("cm");
+  ODWLSPlatesLength->SetUnitCandidates("cm mm");
+
+  // Nb of OD PMT per cell HORIZONTALLY
+  PMTODperCellHorizontal = new G4UIcmdWithAnInteger("/WCSim/HyperKOD/PMTODperCellHorizontal", this);
+  PMTODperCellHorizontal->SetGuidance("Set number of OD PMT per cell HORIZONTALLY.");
+  PMTODperCellHorizontal->SetParameterName("PMTODperCellHorizontal", true);
+  PMTODperCellHorizontal->SetDefaultValue(1);
+  PMTODperCellHorizontal->SetRange("PMTODperCellHorizontal>=0");
+
+  // Nb of OD PMT per cell HORIZONTALLY
+  PMTODperCellVertical = new G4UIcmdWithAnInteger("/WCSim/HyperKOD/PMTODperCellVertical", this);
+  PMTODperCellVertical->SetGuidance("Set number of OD PMT per cell VERTICALLY.");
+  PMTODperCellVertical->SetParameterName("PMTODperCellVertical", true);
+  PMTODperCellVertical->SetDefaultValue(1);
+  PMTODperCellVertical->SetRange("PMTODperCellVertical>=0");
+
+  // Nb of OD PMT per cell HORIZONTALLY
+  PMTODPercentCoverage = new G4UIcmdWithADouble("/WCSim/HyperKOD/PMTODPercentCoverage", this);
+  PMTODPercentCoverage->SetGuidance("Set global OD photocoverage percentage.");
+  PMTODPercentCoverage->SetParameterName("PMTODPercentCoverage", true);
+  PMTODPercentCoverage->SetDefaultValue(1.);
+  PMTODPercentCoverage->SetRange("PMTODPercentCoverage>0");
+
+  // OD Tyvek sheet thickness
+  ODPMTShift = new G4UIcmdWithADoubleAndUnit("/WCSim/HyperKOD/ODPMTShift", this);
+  ODPMTShift->SetGuidance("Set a horizontal shift between rows of PMTs OD (unit: m cm mm).");
+  ODPMTShift->SetParameterName("ODPMTShift", true);
+  ODPMTShift->SetDefaultValue(0.);
+  ODPMTShift->SetUnitCategory("Length");
+  ODPMTShift->SetDefaultUnit("m");
+  ODPMTShift->SetUnitCandidates("m cm mm");
+
+  // Fill the OD WLS with material
+  isWLSFilled = new G4UIcmdWithoutParameter("/WCSim/HyperKOD/DeactivateWLS", this);
+  isWLSFilled->SetGuidance("Deactivate WLS plates by filling them with water");
+
+  // Build reflective cladding around WLS plate
+  BuildODWLSCladding = new G4UIcmdWithoutParameter("/WCSim/HyperKOD/BuildODWLSCladding", this);
+  BuildODWLSCladding->SetGuidance("Build reflective cladding around WLS plate");
+
+  /////////// END OD //////////////
+  /////////////////////////////////
+
+
+  LCConfig = new G4UIcmdWithAString("/WCSim/LCConfig",this);
+  LCConfig->SetGuidance("Set the geometry configuration for the light collecting mirror.");
+  LCConfig->SetGuidance("**For 20 inch PMT Only**");
+  LCConfig->SetGuidance("Available options are:\n"
+			  "No_Mirror\n"
+			  "Mirror_OldLC\n"
+			  "Mirror_2018Oct\n"
+			  );
+  LCConfig->SetParameterName("LCConfig", true);
+  LCConfig->SetCandidates("No_Mirror "
+			  "Mirror_OldLC "
+			  "Mirror_2018Oct "
+			  );
+  LCConfig->SetDefaultValue("No_Mirror");
+  LCConfig->AvailableForStates(G4State_PreInit, G4State_Idle);
+
   WCConstruct = new G4UIcmdWithoutParameter("/WCSim/Construct", this);
   WCConstruct->SetGuidance("Update detector construction with new settings.");
 
@@ -236,6 +392,7 @@ WCSimDetectorMessenger::WCSimDetectorMessenger(WCSimDetectorConstruction* WCSimD
 				    "BoxandLine12inchHQE "
 				    "PMT3inchR12199_02 "
 				    "PMT3inchR14374 "
+				    "PMT3inch_ETEL9302B "
 				    "PMT4inchR12199_02 "
 				    "PMT5inchR12199_02 "
 				    ); 
@@ -254,6 +411,7 @@ WCSimDetectorMessenger::WCSimDetectorMessenger(WCSimDetectorConstruction* WCSimD
 				    "BoxandLine12inchHQE "
 				    "PMT3inchR12199_02 "
 				    "PMT3inchR14374 "
+				    "PMT3inch_ETEL9302B "
 				    "PMT4inchR12199_02 "
 				    "PMT5inchR12199_02 "
 				    ); 
@@ -357,6 +515,7 @@ WCSimDetectorMessenger::WCSimDetectorMessenger(WCSimDetectorConstruction* WCSimD
           "PMT3inchGT\n"
           "PMT3inchR12199_02\n"
           "PMT3inchR14374\n"
+	  "PMT3inch_ETEL9302B\n"
           "PMT5inch\n"
           "PMT8inch\n"
           "PMT10inchHQE\n"
@@ -365,7 +524,7 @@ WCSimDetectorMessenger::WCSimDetectorMessenger(WCSimDetectorConstruction* WCSimD
           "HPD20inchHQE\n"
           "PMT20inch\n");
   SetPMTType->SetParameterName("PMTType", false);
-  SetPMTType->SetCandidates("PMT3inch PMT3inchGT PMT3inchR12199_02 PMT3inchR14374 PMT5inch PMT8inch PMT10inchHQE PMT10inch PMT12inchHQE HPD20inchHQE PMT20inch");
+  SetPMTType->SetCandidates("PMT3inch PMT3inchGT PMT3inchR12199_02 PMT3inchR14374 PMT3inch_ETEL9302B PMT5inch PMT8inch PMT10inchHQE PMT10inch PMT12inchHQE HPD20inchHQE PMT20inch");
   SetPMTType->SetDefaultValue("PMT10inch");
 
   // Set the vertical position of the nuPRISM-lite detector
@@ -394,11 +553,50 @@ WCSimDetectorMessenger::WCSimDetectorMessenger(WCSimDetectorConstruction* WCSimD
   SetDetectorDiameter->SetDefaultValue(6.);
   SetDetectorDiameter->SetUnitCategory("Length");
   SetDetectorDiameter->SetDefaultUnit("m");
+
+  // Rotate barrel by half a tower for alternative alignment of barrel (m)PMTs
+  RotateBarrelHalfTower = new G4UIcmdWithABool("/WCSim/Geometry/RotateBarrelHalfTower",this);
+  RotateBarrelHalfTower->SetGuidance("Rotate barrel by half a tower for alternative alignment of barrel (m)PMTs");
+  RotateBarrelHalfTower->SetParameterName("RotateBarrelHalfTower",false);
+  RotateBarrelHalfTower->SetDefaultValue(false);
+
+  // Use the default replica method to place PMTs or not
+  UseReplica = new G4UIcmdWithABool("/WCSim/PMT/ReplicaPlacement",this);
+  UseReplica->SetGuidance("Use replica method to place PMTs (default = true)");
+  UseReplica->SetParameterName("UseReplica",true);
+  UseReplica->SetDefaultValue(true);
+
+  // Apply random fluctuation to PMT placement
+  PMTPosVar = new G4UIcmdWithADoubleAndUnit("/WCSim/PMT/PositionVariation", this);
+  PMTPosVar->SetGuidance("Set the position variation in PMT placement (unit: mm cm m). Default will be 0 mm");
+  PMTPosVar->SetParameterName("PMTPositionVariation", false);
+  PMTPosVar->SetDefaultValue(0.0);
+  PMTPosVar->SetUnitCategory("Length");
+  PMTPosVar->SetDefaultUnit("mm");
+
+  // Change ID radius for PMT placement
+  TankRadiusChange = new G4UIcmdWith3VectorAndUnit("/WCSim/PMT/TankRadiusChange", this);
+  TankRadiusChange->SetGuidance("Set the tank radius change at top, middle and bottom for PMT placement (unit: mm cm m). Default will be 0 0 0 mm");
+  TankRadiusChange->SetParameterName("TopRadiusChange","MidRadiusChange","BotRadiusChange", false);
+  TankRadiusChange->SetDefaultValue(G4ThreeVector(0,0,0));
+  TankRadiusChange->SetUnitCategory("Length");
+  TankRadiusChange->SetDefaultUnit("mm");
+
+  // Set the input file to read PMT positions
+  SetPMTPositionInput = new G4UIcmdWithAString("/WCSim/PMT/PositionFile",this);
+  SetPMTPositionInput->SetGuidance("Set filename for PMT position file");
+  SetPMTPositionInput->SetParameterName("PMTPositionInput", true);
+
+  // Set CDS file input
+  SetCDSFile = new G4UIcmdWithAString("/WCSim/Geometry/SetCDSFile",this);
+  SetCDSFile->SetGuidance("Set filename for CDS model file");
+  SetCDSFile->SetParameterName("CDSFileInput", true);
 }
 
 WCSimDetectorMessenger::~WCSimDetectorMessenger()
 {
   delete PMTConfig;
+  delete LCConfig;
   delete SavePi0;
   delete SaveCapture;
   delete PMTQEMethod;
@@ -421,6 +619,13 @@ WCSimDetectorMessenger::~WCSimDetectorMessenger()
   delete mPMT_CylRadius;
   delete WCSimDir;
   delete mPMTDir;
+  delete RotateBarrelHalfTower;
+
+  delete UseReplica;
+  delete PMTPosVar;
+  delete TankRadiusChange;
+  delete SetPMTPositionInput;
+  delete SetCDSFile;
 }
 
 void WCSimDetectorMessenger::SetNewValue(G4UIcommand* command,G4String newValue)
@@ -455,11 +660,28 @@ void WCSimDetectorMessenger::SetNewValue(G4UIcommand* command,G4String newValue)
 		} else if ( newValue == "HyperK_mPMT") {
 			WCSimDetector->SetHyperK_mPMTGeometry();
 		} else if ( newValue == "HyperK_HybridmPMT") {
-			WCSimDetector->SetHyperK_HybridmPMTGeometry();
+		  WCSimDetector->SetHyperK_HybridmPMTGeometry();
 		} else if ( newValue == "HyperK_HybridmPMT10PC") {
 			WCSimDetector->SetHyperK_HybridmPMT10PCGeometry();
 		} else if ( newValue == "HyperK_HybridFake") {
 			WCSimDetector->SetHyperK_HybridFakeGeometry();
+		} else if ( newValue == "HyperK_20perCent" ){
+		  WCSimDetector->SetHyperKGeometry_20perCent();
+		} else if ( newValue == "HyperKWithOD" ){
+		  WCSimDetector->SetHyperKWithODGeometry();
+		  WCSimDetector->SetODEdited(false);
+		} else if ( newValue == "HyperK20pcWithOD" ){
+		  WCSimDetector->SetHyperK20pcWithODGeometry();
+		  WCSimDetector->SetODEdited(false);
+		} else if ( newValue == "HyperK_HybridmPMT_WithOD") {
+		  WCSimDetector->SetHyperK_HybridmPMT_WithOD_Geometry();
+		  WCSimDetector->SetODEdited(false);
+    } else if ( newValue == "HyperK_HybridmPMT_WithOD_Realistic") {
+		  WCSimDetector->SetHyperK_HybridmPMT_WithOD_Realistic_Geometry();
+		  WCSimDetector->SetODEdited(false);
+    } else if ( newValue == "HyperK_HybridmPMT_IDonly_Realistic") {
+		  WCSimDetector->SetHyperK_HybridmPMT_IDonly_Realistic_Geometry();
+		  WCSimDetector->SetODEdited(false);
 		} else if ( newValue == "EggShapedHyperK") {
 		  WCSimDetector->SetIsEggShapedHyperK(true);
 		  WCSimDetector->SetEggShapedHyperKGeometry();
@@ -486,15 +708,37 @@ void WCSimDetectorMessenger::SetNewValue(G4UIcommand* command,G4String newValue)
 		WCSimDetector->SetIsNuPrismBeamTest(true); // Jun.04,2020 M.Shinoki
 		WCSimDetector->SetIsNuPrism(true);
 		WCSimDetector->SetNuPrismBeamTest_mPMTGeometry();
+		} else if ( newValue == "nuPRISMBeamTest_16cShort_mPMT") {
+		WCSimDetector->SetIsNuPrismBeamTest_16cShort(true); // Jul.01,2021 L.Anthony
+                WCSimDetector->SetIsNuPrism(true);
+                WCSimDetector->SetNuPrismBeamTest_16cShort_mPMTGeometry();
 		} else if ( newValue == "nuPRISMShort_mPMT") {
 		  WCSimDetector->SetIsNuPrism(true);
 		  WCSimDetector->SetNuPrismShort_mPMTGeometry();
 		} else if ( newValue == "IWCD_mPMT") {
 		  WCSimDetector->SetIsNuPrism(true);
 		  WCSimDetector->SetIWCDGeometry();
+		} else if ( newValue == "IWCD_mPMT_WithOD") {
+		  WCSimDetector->SetIsNuPrism(true);
+		  WCSimDetector->SetIWCD_WithOD_Geometry();
+      WCSimDetector->SetODEdited(false);
+		} else if ( newValue == "IWCD_mPMT_WithOD_OptionA") {
+		  WCSimDetector->SetIsNuPrism(true);
+		  WCSimDetector->SetIWCD_WithOD_Geometry_OptionA();
+      WCSimDetector->SetODEdited(false);
+    } else if ( newValue == "IWCD_mPMT_WithOD_OptionC") {
+		  WCSimDetector->SetIsNuPrism(true);
+		  WCSimDetector->SetIWCD_WithOD_Geometry_OptionC();
+      WCSimDetector->SetODEdited(false);
+    } else if ( newValue == "IWCD_mPMT_WithOD_Old") {
+		  WCSimDetector->SetIsNuPrism(true);
+		  WCSimDetector->SetIWCD_WithOD_Geometry_Old();
+      WCSimDetector->SetODEdited(false);
+		} else {
+		  G4cerr << "That geometry choice is not defined!" << G4endl;
+		  exit(-1);
 		}
-		else
-		  G4cout << "That geometry choice is not defined!" << G4endl;
+		WCSimDetector->DumpDetectorConfigInfo();
 	}
 
 	if (command == SavePi0){
@@ -584,6 +828,17 @@ void WCSimDetectorMessenger::SetNewValue(G4UIcommand* command,G4String newValue)
 		G4cout << "Setting Gadolinium doping concentration: " << newValue << "percent" << G4endl;
             WCSimDetector->AddDopedWater(DopingConcentration->GetNewDoubleValue(newValue));
 	}
+  
+  if(command == BGOPlacement) {
+    if (BGOPlacement->GetNewBoolValue(newValue)) {
+      G4cout << "Placing BGO Scintillation Crystal" << G4endl;
+      WCSimDetector->SetPlaceBGOGeometry(true);
+    }
+    else {
+      G4cout << "Removing BGO Scintillation Crystal from Geometry" << G4endl; 
+      WCSimDetector->SetPlaceBGOGeometry(false);
+    }
+  }
 
 	if(command == PMTSize) {
 		G4cout << "SET PMT SIZE" << G4endl;
@@ -611,22 +866,133 @@ void WCSimDetectorMessenger::SetNewValue(G4UIcommand* command,G4String newValue)
 	  WCSimDetector->SetPMTCoverage2(atof(newValue));
 	}
 
+    /////////////////////////////////
+    ////////////// OD ///////////////
+    /////////////////////////////////
+
+    if(command == PMTODRadius){
+      WCSimDetector->SetODEdited(true);
+      G4cout << "Set OD PMT size " << newValue << " ";
+      if (newValue == "3inch"){
+        WCSimDetector->SetWCPMTODSize("PMT3inch_ETEL9302B");
+      }else if (newValue == "5inch"){
+        WCSimDetector->SetWCPMTODSize("PMT5inch");
+      }else if (newValue == "8inch"){
+        WCSimDetector->SetWCPMTODSize("PMT8inch");
+      }
+      G4cout << G4endl;
+    }
+
+    if(command == ODLateralWaterDepth){
+	WCSimDetector->SetODEdited(true);
+      G4cout << "Set water depth on OD lateral side " << newValue << " " << G4endl;
+      WCSimDetector->SetWCODLateralWaterDepth(ODLateralWaterDepth->GetNewDoubleValue(newValue));
+    }
+
+    if(command == ODHeightWaterDepth){
+	WCSimDetector->SetODEdited(true);
+      G4cout << "Set water depth on OD vertical side " << newValue << " " << G4endl;
+      WCSimDetector->SetWCODHeightWaterDepth(ODHeightWaterDepth->GetNewDoubleValue(newValue));
+    }
+
+    if(command == ODDeadSpace){
+	WCSimDetector->SetODEdited(true);
+      G4cout << "Set dead space width between ID and OD " << newValue << " " << G4endl;
+      WCSimDetector->SetWCODDeadSpace(ODDeadSpace->GetNewDoubleValue(newValue));
+    }
+
+    if(command == ODTyvekSheetThickness){
+	WCSimDetector->SetODEdited(true);
+      G4cout << "Set OD Tyvek thickness " << newValue << " " << G4endl;
+      WCSimDetector->SetWCODTyvekSheetThickness(ODTyvekSheetThickness->GetNewDoubleValue(newValue));
+    }
+
+    if(command == ODWLSPlatesThickness){
+	WCSimDetector->SetODEdited(true);
+      G4cout << "Set OD WLS plates thickness " << newValue << " " << G4endl;
+      WCSimDetector->SetWCODWLSPlatesThickness(ODWLSPlatesThickness->GetNewDoubleValue(newValue));
+    }
+
+    if(command == ODWLSPlatesLength){
+	WCSimDetector->SetODEdited(true);
+      G4cout << "Set OD WLS plates length " << newValue << " " << G4endl;
+      WCSimDetector->SetWCODWLSPlatesLength(ODWLSPlatesLength->GetNewDoubleValue(newValue));
+    }
+
+    if(command == PMTODperCellHorizontal){
+	WCSimDetector->SetODEdited(true);
+      G4cout << "Set nb of OD PMTs per cell Horizontally " << newValue << " " << G4endl;
+      WCSimDetector->SetWCPMTODperCellHorizontal(PMTODperCellHorizontal->GetNewIntValue(newValue));
+    }
+
+    if(command == PMTODperCellVertical){
+	WCSimDetector->SetODEdited(true);
+      G4cout << "Set nb of OD PMTs per cell Vertically " << newValue << " " << G4endl;
+      WCSimDetector->SetWCPMTODperCellVertical(PMTODperCellVertical->GetNewIntValue(newValue));
+    }
+
+    if(command == PMTODPercentCoverage){
+	WCSimDetector->SetODEdited(true);
+      G4cout << "Set global photocoverage of the OD " << newValue << " " << G4endl;
+      WCSimDetector->SetWCPMTODPercentCoverage(PMTODPercentCoverage->GetNewDoubleValue(newValue));
+    }
+
+    if(command == ODPMTShift){
+	WCSimDetector->SetODEdited(true);
+      G4cout << "Set shift between OD PMTs rows " << newValue << " " << G4endl;
+      WCSimDetector->SetWCODPMTShift(ODPMTShift->GetNewDoubleValue(newValue));
+    }
+
+    if(command == isWLSFilled) {
+      WCSimDetector->SetODEdited(true);
+      G4cout << "Deactivate WLS plates by filling them with water " << G4endl;
+      WCSimDetector->SetIsWLSFilled(false);
+    }
+
+    if(command == BuildODWLSCladding) {
+      WCSimDetector->SetODEdited(true);
+      G4cout << "Add cladding around WLS plate " << G4endl;
+      WCSimDetector->SetBuildODWLSCladding(true);
+    }
+
+
+    /////////// END OD //////////////
+    /////////////////////////////////
+
+    if( command == LCConfig ) {
+      // LC Type is defined in WCSimDetectorConstruction.hh
+      if ( newValue == "No_Mirror") {
+	WCSimDetector->SetLCType(0);
+      } else if ( newValue == "Mirror_OldLC" ){
+	WCSimDetector->SetLCType(1);
+      } else if ( newValue == "Mirror_2018Oct" ){
+	WCSimDetector->SetLCType(2);
+      }
+    }
+
+    if(command == WCConstruct) {
+      //If the OD geometry has been changed, then reconstruct the whole tank with the proper recalculated dimensions
+      if (WCSimDetector->GetODEdited() == true) {WCSimDetector->UpdateODGeo();}
+      WCSimDetector->UpdateGeometry();
+    }
+
+
 	if (command == mPMT_CylHeight){
 	  G4cout << "Set Vessel Cylinder Height of MultiPMT to " << newValue  << " " << G4endl; //doesn't work
-	  //std::cout << "Set Cylinder Height of MultiPMT to " << newValue  << " " << std::endl;
+	  //G4cout << "Set Cylinder Height of MultiPMT to " << newValue  << " " << G4endl;
 	  WCSimDetector->SetmPMT_VesselCylHeight(mPMT_CylHeight->GetNewDoubleValue(newValue));
 	}
 
 
 	if (command == mPMT_CylRadiusCurv){
 	  G4cout << "Set Vessel Radius of Curvature of MultiPMT to " << newValue  << " " << G4endl; //doesn't work
-	  //std::cout << "Set Cylinder Radius of MultiPMT to " << newValue  << " " << std::endl;
+	  //G4cout << "Set Cylinder Radius of MultiPMT to " << newValue  << " " << G4endl;
 	  WCSimDetector->SetmPMT_VesselRadiusCurv(mPMT_CylRadiusCurv->GetNewDoubleValue(newValue));
 	}
 	
 	if (command == mPMT_CylRadius){
 	  G4cout << "Set Vessel Radius of MultiPMT to " << newValue  << " " << G4endl; //doesn't work
-	  //std::cout << "Set Cylinder Radius of MultiPMT to " << newValue  << " " << std::endl;
+	  //G4cout << "Set Cylinder Radius of MultiPMT to " << newValue  << " " << G4endl;
 	  WCSimDetector->SetmPMT_VesselRadius(mPMT_CylRadius->GetNewDoubleValue(newValue));
 	}
 
@@ -678,7 +1044,7 @@ void WCSimDetectorMessenger::SetNewValue(G4UIcommand* command,G4String newValue)
 	
 	if (command == mPMT_DistPMTVessel){
 	  G4cout << "Set Distance of PMT(s) to pressure vessel to " << newValue  << " " << G4endl; //doesn't work
-	  //std::cout << "Set Cylinder Radius of MultiPMT to " << newValue  << " " << std::endl;
+	  //G4cout << "Set Cylinder Radius of MultiPMT to " << newValue  << " " << G4endl;
 	  WCSimDetector->SetmPMT_DistPMTVessel(mPMT_DistPMTVessel->GetNewDoubleValue(newValue));
 	}
 
@@ -716,7 +1082,33 @@ void WCSimDetectorMessenger::SetNewValue(G4UIcommand* command,G4String newValue)
 					      } */
 	}
 
-	if(command == WCConstruct) {
-	  WCSimDetector->UpdateGeometry();
+  if (command == RotateBarrelHalfTower){
+        G4cout << "Rotate barrel by half of one tower?  " << newValue << G4endl;
+        WCSimDetector->SetRotateBarrelHalfTower(RotateBarrelHalfTower->GetNewBoolValue(newValue));
+  }
+  
+	if (command == UseReplica){
+	  G4cout << "Use replica method to place PMTs ?  " << newValue << G4endl;
+	  WCSimDetector->SetUseReplica(UseReplica->GetNewBoolValue(newValue));
 	}
+
+	if (command == PMTPosVar) {
+	  G4cout << "Apply fluctuations to PMT placement: sigma = " << newValue << G4endl;
+	  WCSimDetector->SetPMTPosVar(PMTPosVar->GetNewDoubleValue(newValue));
+	}
+
+	if (command == TankRadiusChange) {
+	  G4ThreeVector vec = TankRadiusChange->GetNew3VectorValue(newValue);
+	  G4cout << "Set top, mid, bot radius change = " << vec.x() << ", " << vec.y() << ", " << vec.z() << G4endl;
+	  WCSimDetector->SetRadiusChange(vec.x(),vec.y(),vec.z());
+	}
+
+	if(command == SetPMTPositionInput){
+	  WCSimDetector->SetPMTPositionInput(newValue);
+	}
+
+  if(command == SetCDSFile){
+	  WCSimDetector->SetCDSFile(newValue);
+	}
+
 }

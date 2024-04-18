@@ -103,8 +103,8 @@ void WCSimWCDigi::RemoveDigitizedGate(G4int gate)
   if(fDigiComp.find(gate) != fDigiComp.end())
     fDigiComp.erase(gate);
   //parent id
-  if(primaryParentID.find(gate) != primaryParentID.end())
-    primaryParentID.erase(gate);
+  if(parentSavedTrackID.find(gate) != parentSavedTrackID.end())
+    parentSavedTrackID.erase(gate);
 
   //number of entries counter
   totalPe--;
@@ -114,8 +114,8 @@ void WCSimWCDigi::RemoveDigitizedGate(G4int gate)
 // Sort function by Hit Time
 bool WCSimWCDigi::SortFunctor_Hit::operator() (
 		const WCSimWCDigi * const &a,
-		const WCSimWCDigi * const &b) const {
-
+		const WCSimWCDigi * const &b) const
+{
 	G4double ta, tb;
 	if ( a->time_double.size() > 0 ) 	
 		ta = a->time_double[0];

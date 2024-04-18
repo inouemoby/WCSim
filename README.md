@@ -23,7 +23,7 @@ You can follow issues/requests etc by watching the GitHub respository.
 
 ## Validation Webpage
 
-WCSim uses Travis CI to perform build and physics tests for each pull request and commit.
+WCSim uses GitHub Actions CI to perform build and physics tests for each pull request and commit.
 The scripts it runs can be found at https://github.com/WCSim/Validation
 
 The output can be found at: https://wcsim.github.io/Validation/
@@ -33,22 +33,54 @@ The output can be found at: https://wcsim.github.io/Validation/
 More detailed information about the simulation is available in
 `doc/DetectorDocumentation.pdf`
 
-doxygen documentation can be built by running
-`cd $WCSIMDIR/doc && make`
-Additionally, doxygen documentation is available at https://wcsim.github.io/WCSim/inherits.html
+Additionally, doxygen documentation is available at https://wcsim.github.io/WCSim/annotated.html
+Note that most of the code has no doxygen comments, but all output class member variables are documented. See the WCSimRoot* classes
+
+doxygen documentation can be built locally by running
+```bash
+cd $WCSIMDIR/ && doxygen WCSim_doxygen_config
+```
+
+For admin: A more featured doxygen build can be done & pushed using an alternative doxygen config file (requires `dot` from `graphviz`)
+```bash
+git clone -b gh-pages --single-branch git@github.com:WCSim/WCSim.git WCSim-dox
+cd WCSim-dox
+./get_dox.sh
+```
+You can also make this featured version locally by
+```bash
+cd $WCSIMDIR
+git clone -b gh-pages --single-branch git@github.com:WCSim/WCSim.git WCSim-dox
+doxygen WCSim-dox/WCSim_doxygen_config
+```
 
 ## Build Instructions
 
-As of the Hyper-Kamiokande hybrid configuration, the following prerequsite software is required
-* A `-std=c++0x` or `-std=c++11` compatible compiler. e.g. gcc 4.8.5
-* ROOT v5r34p36 or v5r34p38 (all v5r34 probably works). ROOT v6 also works (6.20/04 has been tested) and will be the only supported version going forwards
-* GEANT 4.10.03p3 (or later)
-  * All of the G4 data files are also required to be installed, include hadron xsec, etc.
-* cmake3 (and ROOT & GEANT4 compiled with cmake)
-* The environment variable `$WCSIMDIR` should be defined as your WCSim directory (not the build one).
+* The environment variable `$WCSIMDIR` should be defined as your WCSim code directory (not the build one).
 ```bash
 export WCSIMDIR=`pwd`
 ```
+
+### Prerequisites
+
+The automated building testing is currently performed inside the hk-software docker container with the prerequisites:
+* Geant4 10.3.3
+* ROOT 6.26/04
+* gcc 8.5.0
+* cmake 3.20.2
+
+And as such this is the most supported version of the software (it is guaranteed to work)
+
+Other versions of prerequisite software can be tried, but aren't guaranteed to work. 
+* Geant 4.10.03p3
+  * If using a newer version of Geant, it is your responsiblity to assess whether Geant physics changes are significant, relative to the officially supported 4.10.03p3
+  * All of the G4 data files are also required to be installed, include hadron xsec, etc.
+* ROOT
+  * ROOT5 (e.g. v5r34p36 or v5r34p38, or potentially any v5r34) can potentially be made to work. You may need to modify `$WCSIM_BUILD_DIR/src/cmake_install.cmake` to take account of ROOT5 not producing `.pcm` files
+  * ROOT6 has been tested on an older version than above (6.20/04)
+* cmake 3.1 and above are required by `CMakeLists.txt`, but not all old versions have been tested
+* The compiler should support `-std=c++11` (or `-std=c++0x`) e.g. gcc 4.8.5
+  * You may need to modify `CMakeLists.txt` to change the `CMAKE_CXX_STANDARD` to another version (e.g. from 14 to 17). I *think* this is dependent on what your prerequisties have been compiled with
 
 ### Build Instructions using CMake:
 
@@ -107,6 +139,7 @@ Useful cmake commands:
 #### WCSim cmake build options
 * `-DWCSim_Geometry_Overlaps_CHECK=<ON|OFF>` If ON, turns on geometry overlap checking (slow, but important when setting new detector geometry options). Default: OFF
 * `-DWCSim_DEBUG_COMPILE_FLAG=<ON|OFF>` If ON, turns on the gcc debug compiler flag `-g`. Default: OFF
+* `-DWCSIM_SAVE_PHOTON_HISTORY_FLAG=<ON|OFF>` If ON, turns on photon scattering/reflection history saving. The data class `WCSimRootCherenkovHitHistory` is used in a similar way as `WCSimRootCherenkovHitTime`. Default: OFF
 
 #### Build with CMake on sukap:
 
@@ -133,6 +166,14 @@ WCSim-install/hybridPMT/
 
 Note that by defaul, just `make install` is run.
 You can run `make clean` before `make install` by running `./make.sh clean`
+
+### Build Instructions using GNUmakefile:
+`GNUmakefile`` is specifically only for use with ROOT5 and is not supported otherwise. All output that needs to be trusted must use cmake. To compile:
+```
+make clean_wcsim
+make rootcint
+make
+```
 
 ### Using WCSim without building using Docker:
 

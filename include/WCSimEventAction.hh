@@ -45,7 +45,8 @@ public:
 		     G4TrajectoryContainer*,
 		     WCSimWCDigitsCollection*,
 		     WCSimWCTriggeredDigitsCollection*,
-		     G4String detectorElement="tank");
+		     G4String detectorElement="tank",
+		     bool skipFillingTracks=false);
   void FillRootEventHybrid(G4int, 
 			   const struct ntupleStruct&, 
 			   G4TrajectoryContainer*,
@@ -53,7 +54,8 @@ public:
 			   WCSimWCTriggeredDigitsCollection*,
 			   G4String,
 			   WCSimRootEvent*,
-			   WCSimRootTrigger*);
+			   WCSimRootTrigger*,
+			   bool skipFillingTracks);
   WCSimRunAction* GetRunAction(){return runAction;}
   void SetDigitizerChoice(G4String digitizer) { DigitizerChoice = digitizer; }
   void SetTriggerChoice  (G4String trigger)   { TriggerChoice   = trigger;   }
@@ -65,7 +67,6 @@ public:
 		    WCSimWCDigitsCollection*,
 		    WCSimWCTriggeredDigitsCollection*,
 		    G4String detectorElement);
-  
 
 private:
   G4int WCSimEventFindStartingVolume( G4ThreeVector vtx);
@@ -81,6 +82,8 @@ private:
   bool     RelativeHitTime;
   bool     ConstructedDAQClasses;
   bool     SavedOptions;
+
+  G4int fEvNum;
 };
 
 

@@ -74,7 +74,6 @@ void WCSimWCHit::Draw()
 		//G4cout << "Ave PE: " << avePe/numbpmthit << " Max PE: " << maxPe << G4endl;
       if ( totalPe > maxPe*.01 )
       {      
-
 	//Don't like this colour scheme (not enough visual gradient between yellow and red)
 	//G4Colour colour(1.,1.-(double(totalPe-.05*maxPe)/double(.95*maxPe)),0.0);
 
@@ -109,7 +108,14 @@ void WCSimWCHit::Print()
 
   G4cout << " Tube:"  << std::setw(4) << tubeID
 	 << " Tube type:"  << tubeType 
-	 << " Track:" << std::setw(6) << trackID 
+	 << " Track:" << std::setw(6); 
+  for (int i = 0; i < totalPe; i++) 
+  {
+    G4cout << trackID[i] << " ";
+    if ( i%10 == 0 && i != 0) 
+      G4cout << G4endl << "\t";
+  }
+  G4cout
 	 << " Pe:"    << totalPe
 	 << " Pos:"   << pos/cm << G4endl
 	 << "\tTime: "; 
@@ -122,8 +128,6 @@ void WCSimWCHit::Print()
   }
   G4cout << "size: " << time.size() << G4endl;
 }
-
-
 
 /*! \brief Convert HSV to RGB color space (from https://gist.github.com/fairlight1337/4935ae72bcbcc1ba5c72)
   

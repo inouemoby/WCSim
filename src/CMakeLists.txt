@@ -5,7 +5,10 @@
 # Core library
 
 file(GLOB sources ${PROJECT_SOURCE_DIR}/src/*.cc)
-file(GLOB headers ${PROJECT_SOURCE_DIR}/include/*.hh ${PROJECT_SOURCE_DIR}/include/*.h)
+file(GLOB headers 
+        ${PROJECT_SOURCE_DIR}/include/*.hh 
+        ${PROJECT_SOURCE_DIR}/include/*.h
+        ${PROJECT_SOURCE_DIR}/include/*.hpp)
 
 # ###########
 # # Library #
@@ -14,7 +17,7 @@ file(GLOB headers ${PROJECT_SOURCE_DIR}/include/*.hh ${PROJECT_SOURCE_DIR}/inclu
 pbuilder_library(
         TARGET WCSimCore
         SOURCES ${sources}
-        PROJECT_LIBRARIES ${PACKAGE_LIBS}
+        PROJECT_LIBRARIES WCSimRoot
         PUBLIC_EXTERNAL_LIBRARIES ${PUBLIC_EXT_LIBS}
         PRIVATE_EXTERNAL_LIBRARIES ${PRIVATE_EXT_LIBS}
 )
@@ -97,18 +100,13 @@ pbuilder_component_install_and_export(
         COMPONENT Executables
         EXETARGETS ${programs}
 )
-
 ##############
 # WCSim compilation options
 ##############
-option(WCSim_Geometry_Overlaps_CHECK
-  "Toggle GEANT4 overlap checking when placing geometry elements"
-  OFF
-)
 
 target_compile_definitions(WCSimCore PRIVATE
-        WCSIM_CHECK_GEOMETRY_OVERLAPS=$<IF:$<BOOL:${WCSim_Geometry_Overlaps_CHECK}>,true,false>
+        WCSIM_CHECK_GEOMETRY_OVERLAPS=${WCSIM_CHECK_GEOMETRY_OVERLAPS}
 )
 target_compile_definitions(WCSim PRIVATE
-        WCSIM_CHECK_GEOMETRY_OVERLAPS=$<IF:$<BOOL:${WCSim_Geometry_Overlaps_CHECK}>,true,false>
+        WCSIM_CHECK_GEOMETRY_OVERLAPS=${WCSIM_CHECK_GEOMETRY_OVERLAPS}
 )

@@ -1,4 +1,9 @@
 #include "WCSimWCSD.hh"
+
+#include "WCSimSteppingAction.hh"
+#include "WCSimDetectorConstruction.hh"
+#include "WCSimTrackInformation.hh"
+
 #include "G4ParticleTypes.hh"
 #include "G4HCofThisEvent.hh"
 #include "G4TouchableHistory.hh"
@@ -14,13 +19,12 @@
 
 #include <sstream>
 
-#include "WCSimDetectorConstruction.hh"
-#include "WCSimTrackInformation.hh"
 
-#include "WCSimSteppingAction.hh"
-
-WCSimWCSD::WCSimWCSD(G4String CollectionName, G4String name,WCSimDetectorConstruction* myDet, G4String detectorElement)
-  :G4VSensitiveDetector(name), detectorElement(detectorElement)
+WCSimWCSD::WCSimWCSD(G4String CollectionName,
+                     G4String name,
+                     WCSimDetectorConstruction* myDet,
+                     G4String inDetectorElement)
+     :G4VSensitiveDetector(name), detectorElement(inDetectorElement)
 {
   // Place the name of this collection on the list.  We can have more than one
   // in principle.  CollectionName is a vector.
@@ -72,35 +76,31 @@ G4bool WCSimWCSD::ProcessHits(G4Step* aStep, G4TouchableHistory*)
   G4TouchableHandle  theTouchable = preStepPoint->GetTouchableHandle();
   G4VPhysicalVolume* thePhysical  = theTouchable->GetVolume();
 
-
   //XQ 3/30/11 try to get the local position try to add the position and direction
-  G4ThreeVector worldPosition = preStepPoint->GetPosition();
-  G4ThreeVector localPosition = theTouchable->GetHistory()->GetTopTransform().TransformPoint(worldPosition);
+  G4ThreeVector worldPosition  = preStepPoint->GetPosition();
+  G4ThreeVector localPosition  = theTouchable->GetHistory()->GetTopTransform().TransformPoint(worldPosition);
   G4ThreeVector worldDirection = preStepPoint->GetMomentumDirection();
   G4ThreeVector localDirection = theTouchable->GetHistory()->GetTopTransform().TransformAxis(worldDirection);
 
-
   WCSimTrackInformation* trackinfo 
     = (WCSimTrackInformation*)(aStep->GetTrack()->GetUserInformation());
-  
-  G4int primParentID = -1;
-  G4float photonStartTime;
+
+  G4int parentSavedTrackID = -1;
+  G4float       photonStartTime;
   G4ThreeVector photonStartPos;
   G4ThreeVector photonStartDir;
-  if (trackinfo) {
-    //Skip secondaries and match to mother process, eg. muon, decay particle, gamma from pi0/nCapture.
-    primParentID = trackinfo->GetPrimaryParentID();  //!= ParentID.
-    photonStartTime = trackinfo->GetPhotonStartTime();
-    photonStartPos = trackinfo->GetPhotonStartPos();
-    photonStartDir = trackinfo->GetPhotonStartDir();
+  
+  parentSavedTrackID   = aStep->GetTrack()->GetParentID();
+  photonStartTime      = aStep->GetTrack()->GetGlobalTime() - aStep->GetTrack()->GetLocalTime(); // current time minus elapsed time of track
+  photonStartPos       = aStep->GetTrack()->GetVertexPosition();
+  photonStartDir       = aStep->GetTrack()->GetVertexMomentumDirection();
+ 
+  // Need to create a NONE string in case the Hit has no creatorProcess, such a Dark Noise Hit.
+  const G4VProcess* process = aStep->GetTrack()->GetCreatorProcess();
+  ProcessType_t photonCreatorProcess(kUnknownProcess);
+  if (process) {
+    photonCreatorProcess = WCSimEnumerations::ProcessTypeStringToEnum(process->GetProcessName());
   }
-  else { // if there is no trackinfo, then it is a primary particle!
-    primParentID = aStep->GetTrack()->GetTrackID();
-    photonStartTime = aStep->GetTrack()->GetGlobalTime();
-    photonStartPos = aStep->GetTrack()->GetVertexPosition();
-    photonStartDir = aStep->GetTrack()->GetVertexMomentumDirection();
-  }
-
 
   G4int    trackID           = aStep->GetTrack()->GetTrackID();
   G4String volumeName        = aStep->GetTrack()->GetVolume()->GetName();
@@ -118,15 +118,18 @@ G4bool WCSimWCSD::ProcessHits(G4Step* aStep, G4TouchableHistory*)
   // they don't in skdetsim. 
   if ( particleDefinition != G4OpticalPhoton::OpticalPhotonDefinition())
     return false;
+
   G4String WCCollectionName;
   if(detectorElement=="tank") WCCollectionName = fdet->GetIDCollectionName();
   else if (detectorElement=="tankPMT2") WCCollectionName = fdet->GetIDCollectionName2();
+  else if (detectorElement=="OD") WCCollectionName = fdet->GetODCollectionName();
 
   //= fdet->GetIDCollectionName();
   //WCSimPMTObject *PMT = fdet->GetPMTPointer(WCIDCollectionName);//B.Q
   //G4cout << "PMT associated to collection = " << PMT->GetPMTName() << G4endl;
   //if(volumeName == ) WCIDCollectionName = fdet->GetIDCollectionName();
   //G4String WCIDCollectionName2 = fdet->GetIDCollectionName2();
+
   // M Fechner : too verbose
   //  if (aStep->GetTrack()->GetTrackStatus() == fAlive)G4cout << "status is fAlive\n";
   if ((aStep->GetTrack()->GetTrackStatus() == fAlive )
@@ -174,13 +177,14 @@ G4bool WCSimWCSD::ProcessHits(G4Step* aStep, G4TouchableHistory*)
 
   // Debug:
   //G4cout << "================================================" << G4endl;
-  //G4cout << tubeTag.str() << std::endl;
+  //G4cout << tubeTag.str() << G4endl;
   //G4cout << "================================================" << G4endl;
 
   // Get the tube ID from the tubeTag
-  G4int replicaNumber;// = WCSimDetectorConstruction::GetTubeID(tubeTag.str());
+  G4int replicaNumber;
   if(detectorElement=="tank") replicaNumber = WCSimDetectorConstruction::GetTubeID(tubeTag.str());
   else if(detectorElement=="tankPMT2") replicaNumber = WCSimDetectorConstruction::GetTubeID2(tubeTag.str());
+  else if(detectorElement=="OD") replicaNumber = WCSimDetectorConstruction::GetODTubeID(tubeTag.str());
   else G4cout << "detectorElement not defined..." << G4endl;
 
   G4double theta_angle = 0.;
@@ -188,23 +192,21 @@ G4bool WCSimWCSD::ProcessHits(G4Step* aStep, G4TouchableHistory*)
 
   //XQ Add the wavelength there
   G4double  wavelength = (2.0*M_PI*197.3)/( aStep->GetTrack()->GetTotalEnergy()/eV);
-  
   G4double ratio = 1.;
   G4double maxQE = 0.;
   G4double photonQE = 0.;
   if (fdet->GetPMT_QE_Method()==1 || fdet->GetPMT_QE_Method() == 4){
     photonQE = 1.1;
   }else if (fdet->GetPMT_QE_Method()==2){
+    // maxQE = fdet->GetPMTQE(WCIDCollectionName,wavelength,0,200,700,ratio);
     maxQE = fdet->GetPMTQE(WCCollectionName,wavelength,0,240,660,ratio);
     photonQE = fdet->GetPMTQE(volumeName, wavelength,1,240,660,ratio);
     photonQE = photonQE/maxQE;
   }else if (fdet->GetPMT_QE_Method() == 3){
     ratio = 1./(1.-0.25);
-    photonQE = fdet->GetPMTQE(volumeName, wavelength,1,240,660,ratio);
+    photonQE = fdet->GetPMTQE(WCCollectionName, wavelength,1,240,660,ratio);
   }
   
-  
-  //photonQE = 1;
   if (G4UniformRand() <= photonQE){
     
      G4double local_x = localPosition.x();
@@ -212,6 +214,7 @@ G4bool WCSimWCSD::ProcessHits(G4Step* aStep, G4TouchableHistory*)
      G4double local_z = localPosition.z();
      theta_angle = acos(fabs(local_z)/sqrt(pow(local_x,2)+pow(local_y,2)+pow(local_z,2)))/3.1415926*180.;
      effectiveAngularEfficiency = fdet->GetPMTCollectionEfficiency(theta_angle, volumeName);
+
      if (G4UniformRand() <= effectiveAngularEfficiency || fdet->UsePMT_Coll_Eff()==0){
        //Retrieve the pointer to the appropriate hit collection. 
        //Since volumeName is the same as the SD name, this works. 
@@ -221,15 +224,19 @@ G4bool WCSimWCSD::ProcessHits(G4Step* aStep, G4TouchableHistory*)
        const G4Event* currentEvent = Runman->GetCurrentEvent();
        G4HCofThisEvent* HCofEvent = currentEvent->GetHCofThisEvent();
        hitsCollection = (WCSimWCHitsCollection*)(HCofEvent->GetHC(collectionID));
-      
-       // If this tube hasn't been hit add it to the collection	 
+
+       // mark the track as having produced a hit
+       if(!trackinfo)
+           trackinfo = new WCSimTrackInformation();
+       trackinfo->SetProducesHit(true);
+
+       // If this tube hasn't been hit add it to the collection
        if (PMTHitMap[replicaNumber] == 0)
        //if (PMTHitMap.find(replicaNumber) == PMTHitMap.end())  TF attempt to fix
 	 {
 	   WCSimWCHit* newHit = new WCSimWCHit();
 	   newHit->SetTubeID(replicaNumber);
 	   //newHit->SetTubeType(volumeName);//B. Quilain
-	   newHit->SetTrackID(trackID);
 	   newHit->SetEdep(energyDeposition); 
 	   newHit->SetLogicalVolume(thePhysical->GetLogicalVolume());
 	   
@@ -241,12 +248,14 @@ G4bool WCSimWCSD::ProcessHits(G4Step* aStep, G4TouchableHistory*)
 	   // Set the hitMap value to the collection hit number
 	   PMTHitMap[replicaNumber] = hitsCollection->insert( newHit );
 	   (*hitsCollection)[PMTHitMap[replicaNumber]-1]->AddPe(hitTime);
-	   (*hitsCollection)[PMTHitMap[replicaNumber]-1]->AddParentID(primParentID);
+     (*hitsCollection)[PMTHitMap[replicaNumber]-1]->AddTrackID(trackID);
+	   (*hitsCollection)[PMTHitMap[replicaNumber]-1]->AddParentID(parentSavedTrackID);
 	   (*hitsCollection)[PMTHitMap[replicaNumber]-1]->AddPhotonStartTime(photonStartTime);
 	   (*hitsCollection)[PMTHitMap[replicaNumber]-1]->AddPhotonStartPos(photonStartPos);
 	   (*hitsCollection)[PMTHitMap[replicaNumber]-1]->AddPhotonEndPos(worldPosition);
 	   (*hitsCollection)[PMTHitMap[replicaNumber]-1]->AddPhotonStartDir(photonStartDir);
 	   (*hitsCollection)[PMTHitMap[replicaNumber]-1]->AddPhotonEndDir(worldDirection);
+     (*hitsCollection)[PMTHitMap[replicaNumber]-1]->AddPhotonCreatorProcess(photonCreatorProcess);
 	   
 	   //     if ( particleDefinition != G4OpticalPhoton::OpticalPhotonDefinition() )
 	   //       newHit->Print();
@@ -254,12 +263,14 @@ G4bool WCSimWCSD::ProcessHits(G4Step* aStep, G4TouchableHistory*)
 	 }
        else {
 	 (*hitsCollection)[PMTHitMap[replicaNumber]-1]->AddPe(hitTime);
-	 (*hitsCollection)[PMTHitMap[replicaNumber]-1]->AddParentID(primParentID);
+   (*hitsCollection)[PMTHitMap[replicaNumber]-1]->AddTrackID(trackID);
+	 (*hitsCollection)[PMTHitMap[replicaNumber]-1]->AddParentID(parentSavedTrackID);
 	 (*hitsCollection)[PMTHitMap[replicaNumber]-1]->AddPhotonStartTime(photonStartTime);
 	 (*hitsCollection)[PMTHitMap[replicaNumber]-1]->AddPhotonStartPos(photonStartPos);
 	 (*hitsCollection)[PMTHitMap[replicaNumber]-1]->AddPhotonEndPos(worldPosition);
 	 (*hitsCollection)[PMTHitMap[replicaNumber]-1]->AddPhotonStartDir(photonStartDir);
 	 (*hitsCollection)[PMTHitMap[replicaNumber]-1]->AddPhotonEndDir(worldDirection);
+   (*hitsCollection)[PMTHitMap[replicaNumber]-1]->AddPhotonCreatorProcess(photonCreatorProcess);
 	 
        }
      }
@@ -283,9 +294,9 @@ void WCSimWCSD::EndOfEvent(G4HCofThisEvent* HCE)
 
     G4int numHits = hitsCollection->entries();
 
-    G4cout << "There are " << numHits << " tubes hit in the WC: " << G4endl;
+    G4cout << "There are " << numHits << " hits in the "<<detectorElement<<" : "<< G4endl;
     for (G4int i=0; i < numHits; i++) {
-      G4cout<<"ihit ID = "<<i<<std::endl;
+      G4cout<<"ihit ID = "<<i<<G4endl;
       (*hitsCollection)[i]->Print();
     }
 
@@ -301,14 +312,14 @@ void WCSimWCSD::EndOfEvent(G4HCofThisEvent* HCE)
 
       G4cout << "There are " << numHits2 << " tubes hit in the WC: " << G4endl;
       for (G4int i=0; i < numHits2; i++){
-	G4cout<<"ihit ID = "<<i<<std::endl;
+	G4cout<<"ihit ID = "<<i<<G4endl;
 	(*hitsCollection2)[i]->Print();
       }
     }
       /*
     {
       if(abs((*hitsCollection)[i]->GetTubeID() - 1584)  < 5){
-	  std::cout << (*hitsCollection)[i]->GetTubeID() << std::endl;
+	  G4cout << (*hitsCollection)[i]->GetTubeID() << G4endl;
 	  (*hitsCollection)[i]->Print();
       }
       }*/

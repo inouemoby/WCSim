@@ -12,7 +12,7 @@
 #include <string>
 
 WCSimWCDAQMessenger::WCSimWCDAQMessenger(WCSimEventAction* eventaction) :
-  WCSimEvent(eventaction)
+  WCSimEvent(eventaction), NDigitsPreWindowSetByUser(false)
 {
   initialiseString = " (this is a default set; it may be overwritten by user commands)";
   initialised = false;
@@ -68,7 +68,7 @@ WCSimWCDAQMessenger::WCSimWCDAQMessenger(WCSimEventAction* eventaction) :
   RelativeHitTime->SetGuidance("Set the digitized hit time relative to the first one");
   RelativeHitTime->SetParameterName("RelativeHitTime",true);
   RelativeHitTime->SetDefaultValue(defaultRelativeHitTime);
-
+  SetNewValue(RelativeHitTime, defaultRelativeHitTime);
 
   //Generic digitizer specific options
   DigitizerDir = new G4UIdirectory("/DAQ/DigitizerOpt/");
@@ -324,6 +324,7 @@ void WCSimWCDAQMessenger::SetNewValue(G4UIcommand* command,G4String newValue)
   else if (command == NDigitsPreTriggerWindow) {
     G4cout << "NDigits pretrigger window set to " << newValue << " ns" << initialiseString.c_str() << G4endl;
     StoreNDigitsPreWindow = NDigitsPreTriggerWindow->GetNewIntValue(newValue);
+    NDigitsPreWindowSetByUser = true;
   }
   else if (command == NDigitsPostTriggerWindow) {
     G4cout << "NDigits posttrigger window set to " << newValue << " ns" << initialiseString.c_str() << G4endl;
@@ -359,14 +360,10 @@ void WCSimWCDAQMessenger::SetTriggerOptions()
   G4cout << "\t" << failuremode << G4endl;
   WCSimTrigger->SetSaveFailuresTime(StoreSaveFailuresTime);
   G4cout << "\tTrigger time for events which fail all triggers will be set to " << StoreSaveFailuresTime << " ns" << G4endl;
-  if(StoreSaveFailuresPreWindow >= -1E6) {
-    WCSimTrigger->SetSaveFailuresPreTriggerWindow(StoreSaveFailuresPreWindow);
-    G4cout << "\tSaveFailures pretrigger window set to " << StoreSaveFailuresPreWindow << " ns" << G4endl;
-  }
-  if(StoreSaveFailuresPostWindow >= 0) {
-    WCSimTrigger->SetSaveFailuresPostTriggerWindow(StoreSaveFailuresPostWindow);
-    G4cout << "\tSaveFailures posttrigger window set to " << StoreSaveFailuresPostWindow << " ns" << G4endl;
-  }
+  WCSimTrigger->SetSaveFailuresPreTriggerWindow(StoreSaveFailuresPreWindow);
+  G4cout << "\tSaveFailures pretrigger window set to " << StoreSaveFailuresPreWindow << " ns" << G4endl;
+  WCSimTrigger->SetSaveFailuresPostTriggerWindow(StoreSaveFailuresPostWindow);
+  G4cout << "\tSaveFailures posttrigger window set to " << StoreSaveFailuresPostWindow << " ns" << G4endl;
 
   if(StoreNDigitsThreshold >= 0) {
    WCSimTrigger->SetNDigitsThreshold(StoreNDigitsThreshold);
@@ -379,7 +376,7 @@ void WCSimWCDAQMessenger::SetTriggerOptions()
     WCSimTrigger->SetNDigitsWindow(StoreNDigitsWindow);
     G4cout << "\tNDigits trigger window set to " << StoreNDigitsWindow << " ns" << G4endl;
   }
-  if(StoreNDigitsPreWindow >= 0) {
+  if(NDigitsPreWindowSetByUser) {
     WCSimTrigger->SetNDigitsPreTriggerWindow(StoreNDigitsPreWindow);
     G4cout << "\tNDigits pretrigger window set to " << StoreNDigitsPreWindow << " ns" << G4endl;
   }

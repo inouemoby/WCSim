@@ -4,12 +4,14 @@
 #pragma link off all classes;
 #pragma link off all functions;
 
+#pragma link C++ enum  WCSimRandomGenerator_t;
 #pragma link C++ enum  TriggerType_t;
 #pragma link C++ enum  DigitizerType_t;
 
 #pragma link C++ class WCSimRootCherenkovDigiHit+;
 #pragma link C++ class WCSimRootCherenkovHit+;
 #pragma link C++ class WCSimRootCherenkovHitTime+;
+#pragma link C++ class WCSimRootCherenkovHitHistory+;
 #pragma link C++ class WCSimRootTrack+;
 #pragma link C++ class WCSimRootEventHeader+;
 #pragma link C++ class WCSimRootTrigger+;

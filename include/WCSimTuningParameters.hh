@@ -31,6 +31,11 @@ public:
   G4double GetMieff() {return mieff;}
   void SetMieff(G4double rparam) {mieff=rparam;}
 
+  G4int GetPMTSurfType() {return pmtsurftype;}
+  void SetPMTSurfType(G4double rparam) {pmtsurftype=rparam;}
+
+  G4int GetCathodePara() {return cathodepara;}
+  void SetCathodePara(G4double rparam) {cathodepara=rparam;}
   //Added by TD 2019/06/22
   G4double GetTtsff() {return ttsff;}
   void SetTtsff(G4double rparam) {ttsff=rparam;}
@@ -55,6 +60,12 @@ public:
 
   void SaveOptionsToOutput(WCSimRootOptions * wcopt);
 
+  G4double GetWCODWLSCladdingReflectivity() {return WCODWLSCladdingReflectivity;}
+  void SetWCODWLSCladdingReflectivity(G4double tparam) {WCODWLSCladdingReflectivity=tparam;}
+
+  G4double GetWCODTyvekReflectivity() {return WCODTyvekReflectivity;}
+  void SetWCODTyvekReflectivity(G4double tparam) {WCODTyvekReflectivity=tparam;}
+
 private:
 
   // The messenger
@@ -74,9 +85,16 @@ private:
   // G4double qoiff; // TD 2019.6.26
   G4double pmtsatur;
 
+  // PMT photocathode surface properties
+  G4int pmtsurftype;
+  G4int cathodepara;
+
   //For Top Veto - jl145
   G4double tvspacing;
   G4bool topveto;
+
+  G4double WCODWLSCladdingReflectivity;
+  G4double WCODTyvekReflectivity;
 
 };
 

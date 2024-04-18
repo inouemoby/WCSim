@@ -1,7 +1,10 @@
+#include "WCSimSteppingAction.hh"
+
 #include <stdlib.h>
 #include <stdio.h>
-
-#include "WCSimSteppingAction.hh"
+#include <WCSimRootEvent.hh>
+#include <G4SIunits.hh>
+#include <G4OpticalPhoton.hh>
 
 #include "G4Track.hh"
 #include "G4VProcess.hh"
@@ -20,9 +23,20 @@ G4int WCSimSteppingAction::n_photons_through_gel = 0;
 G4int WCSimSteppingAction::n_photons_on_blacksheet = 0;
 G4int WCSimSteppingAction::n_photons_on_smallPMT = 0;
 
+///////////////////////////////////////////////
+///// BEGINNING OF WCSIM STEPPING ACTION //////
+///////////////////////////////////////////////
+
+
+WCSimSteppingAction::WCSimSteppingAction(WCSimRunAction *myRun, WCSimDetectorConstruction *myDet) : runAction(myRun), det(myDet) {
+
+}
 
 void WCSimSteppingAction::UserSteppingAction(const G4Step* aStep)
 {
+    const G4Event *event = G4EventManager::GetEventManager()->GetConstCurrentEvent();
+    if(event->IsAborted() || event->GetEventID() < 0)
+      return;
   //DISTORTION must be used ONLY if INNERTUBE or INNERTUBEBIG has been defined in BidoneDetectorConstruction.cc
   
   const G4Track* track       = aStep->GetTrack();
@@ -84,10 +98,10 @@ void WCSimSteppingAction::UserSteppingAction(const G4Step* aStep)
 
     /*
     if( (thePrePV->GetName().find("pmt") != std::string::npos)){
-      std::cout << "Photon between " << thePrePV->GetName() <<
+      G4cout << "Photon between " << thePrePV->GetName() <<
 	" and " << thePostPV->GetName() << " because " << 
 	thePostPoint->GetProcessDefinedStep()->GetProcessName() << 
-	" and boundary status: " <<  boundary->GetStatus() << " with track status " << track->GetTrackStatus() << std::endl;
+	" and boundary status: " <<  boundary->GetStatus() << " with track status " << track->GetTrackStatus() << G4endl;
       
 	}*/
 
@@ -95,8 +109,9 @@ void WCSimSteppingAction::UserSteppingAction(const G4Step* aStep)
 
     if(track->GetTrackStatus() == fStopAndKill){
       if(boundary->GetStatus() == NoRINDEX){
-	std::cout << "Optical photon is killed because of missing refractive index in either " << thePrePoint->GetMaterial()->GetName() << " or " << thePostPoint->GetMaterial()->GetName() << 
-	  " : could also be caused by Overlaps with volumes with logicalBoundaries." << std::endl;
+	G4cout << "Optical photon is killed because of missing refractive index in either " << thePrePoint->GetMaterial()->GetName() << " or " << thePostPoint->GetMaterial()->GetName() <<
+	  " (transition from " << thePrePV->GetName() << " to " << thePostPV->GetName() << ")" <<
+	  " : could also be caused by Overlaps with volumes with logicalBoundaries." << G4endl;
 	
       }
       /* Debug :  
@@ -105,11 +120,11 @@ void WCSimSteppingAction::UserSteppingAction(const G4Step* aStep)
 	
 	if(boundary->GetStatus() != StepTooSmall){
 	  //	if(thePostPoint->GetProcessDefinedStep()->GetProcessName() != "Transportation")
-	  std::cout << "Killed photon between " << thePrePV->GetName() <<
+	  G4cout << "Killed photon between " << thePrePV->GetName() <<
 	    " and " << thePostPV->GetName() << " because " << 
 	    thePostPoint->GetProcessDefinedStep()->GetProcessName() << 
 	    " and boundary status: " <<  boundary->GetStatus() <<
-	    std::endl;
+	    G4endl;
 	}
 	}	*/
       
@@ -118,17 +133,6 @@ void WCSimSteppingAction::UserSteppingAction(const G4Step* aStep)
 
 
 
-  //debugging 
-//  G4Track* theTrack = aStep->GetTrack();
-//  const G4DynamicParticle* aParticle = theTrack->GetDynamicParticle();
-//  G4ThreeVector aMomentum = aParticle->GetMomentumDirection();
-//  G4double vx = aMomentum.x();
-//  G4int ix = std::isnan(vx);
-//  if(ix != 0){
-//    G4cout << " PROBLEM! " << theTrack->GetCreatorProcess()->GetProcessName() <<
-//  std::flush << G4endl;
-//  }
-  
 }
 
 
