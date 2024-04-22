@@ -2,7 +2,7 @@
 
 source env_sukap_ROOT6.sh
 
-/usr/local/cmake-3.18.1/bin/cmake --version 
+/usr/local/cmake-3.26.0/build/bin/cmake --version 
 
 wcsim_name=${PWD##*/}
 branch_name=$(git rev-parse --abbrev-ref HEAD)
@@ -22,7 +22,7 @@ if [ ! -d ${build_directory} ]; then
 	mkdir -p ${build_directory}
 	
 	cd ${build_directory}
-	/usr/local/cmake-3.18.1/bin/cmake -DCMAKE_PREFIX_PATH=${G4INSTALLDIR} ${wcsim_directory}
+	/usr/local/cmake-3.26.0/build/bin/cmake -DCMAKE_PREFIX_PATH=${G4INSTALLDIR} ${wcsim_directory}
 	
 	cp -r ${wcsim_directory}/sample-root-scripts ${build_directory}/.
 else 
