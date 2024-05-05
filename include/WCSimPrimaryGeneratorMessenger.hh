@@ -11,10 +11,9 @@ class G4UIcmdWithADouble;
 #include "G4UIcmdWithADouble.hh"
 #include "G4UIcmdWithAString.hh"
 #include "G4UIcmdWithAnInteger.hh"
-#include "G4UIcmdWith3Vector.hh"
-#include "G4UIcmdWith3VectorAndUnit.hh"
 #include "globals.hh"
 #include "G4Tokenizer.hh"
+#include <G4UIcmdWith3VectorAndUnit.hh>
 
 class WCSimPrimaryGeneratorMessenger: public G4UImessenger
 {
@@ -38,39 +37,21 @@ class WCSimPrimaryGeneratorMessenger: public G4UImessenger
   G4UIcmdWithAString* fileNameCmd;
   G4UIcmdWithABool*   poisCmd;
   G4UIcmdWithADouble* poisMeanCmd;
-  G4UIcmdWithAString* fileNameCmdCosmics;
-  G4UIcmdWithAString* timeUnitCmd;
   G4UIcmdWithAString* isotopeCmd;
   G4UIcmdWithAString* radonScalingCmd;
   G4UIcmdWithADouble* radioactive_time_window_Cmd;
   G4UIcmdWithAnInteger* radonGeoSymCmd;
-
   // K.M.Tsui: addition of injector events
   G4UIcmdWithAnInteger* nPhotonsCmd;
   G4UIcmdWithAnInteger* injectorOnCmd;
   G4UIcmdWithADouble* injectorTimeCmd;
   G4UIcmdWithADouble* openingAngleCmd;
   G4UIcmdWithADouble* injectorWavelengthCmd;
-
-  G4UIcmdWithAnInteger* mPMTLEDIdCmd1;
-  G4UIcmdWith3Vector* mPMTLEDIdCmd2;
-
-  // IBD event generator spectrum file
-  G4UIcmdWithAString* ibdDatabaseCmd;
-  G4UIcmdWithAString* ibdmodelCmd;
-  
-  // commands for the light injectors (profile from db)
-  G4UIcmdWithAString* lightInjectorCmd;
-  G4UIcmdWithAString* lightInjectorIdxCmd;
-  G4UIcmdWithAnInteger* lightInjectorNPhotonsCmd;
-  G4UIcmdWithAString* lightInjectorFilenameCmd;
-  G4UIcmdWithAnInteger* lightInjectorModeCmd;
-
-  // Added by T. Yano, for Ni calib
-  G4UIcmdWith3VectorAndUnit*   NiPosCmd;
+  G4UIcmdWith3VectorAndUnit*   NiPosCmd;// Added by T. Yano, for Ni calib
   
   void IsotopeCommand(G4String newValue);
   void RadonScalingCommand(G4String newValue);
+
 };
 
 #endif
