@@ -1,9 +1,5 @@
 #!/bin/bash
 
-
-# export PATH=/usr/local/cmake-3.18.1/bin/:$PATH
-
-
 ############################
 # ROOT/CERN
 ############################
@@ -11,7 +7,6 @@
 #  Temporary use Guillaume Pronost's version. Should change in the future.
 #
 export ROOT_DIR=/home/pronost/software/root-5.34.38-build
-export ROOT_STR=ROOT5
 # Note: There is no official ROOT 6 installation 
 #  Temporary use Guillaume Pronost's version. Should change in the future.
 #export ROOT_DIR=/home/pronost/software/root-6.22.00-build

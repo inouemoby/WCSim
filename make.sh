@@ -1,5 +1,4 @@
 #!/bin/bash
-source ./setup/env_sukap.sh
 
 cmake3 --version
 

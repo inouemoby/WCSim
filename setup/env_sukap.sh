@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # ROOT version as argument, default value is 6 for ROOT6
-ROOT_ARG=5
-#ROOT_ARG=6
+#ROOT_ARG=5
+ROOT_ARG=6
 
 if [ ! -z "$1" ] ; then
 	echo "ROOT version requested to be: ${1}"

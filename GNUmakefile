@@ -1,8 +1,28 @@
+# $Id: GNUmakefile,v 1.17 2006/09/04 15:43:27 t2k Exp $
+# --------------------------------------------------------------
+# GNUmakefile for examples module.  Gabriele Cosmo, 06/04/98.
+# --------------------------------------------------------------
 
-ifneq (,$(wildcard Makefile))
-  include Makefile # CMake in-place build
-else ifdef G4INSTALL
-  include GNUmakefile_full # GNU make build
+G4DEBUG = 1
+
+name := WCSim
+G4TARGET := $(name)
+G4EXLIB := true
+
+ifndef G4INSTALL
+  G4INSTALL = ../../..
+endif
+
+ROOTCFLAGS   := $(shell root-config --cflags) -DUSE_ROOT -fPIC
+ROOTLIBS     := $(shell root-config --libs)
+
+LIBNAME := WCSim
+
+# NOTE: Geant4.7.0 changes the way Maximum Step size is defined.  
+# We need extra code for versions 4.7.0 and above; eventually 
+# everyone should upgrade to geant4.7
+ifneq (,$(findstring 4.7,$(G4INSTALL)))
+GEANT4_7_0 = 0
 else
 GEANT4_7_0 = 1
 endif
@@ -52,9 +72,9 @@ libWCSim.a : $(ROOTOBJS)
 	ar clq $@ $(ROOTOBJS) 
 
 ./WCSimRootDict.cxx : $(ROOTSRC)
-	rootcint  -f ./WCSimRootDict.cxx -c -I./include -I$(shell root-config --incdir) WCSimRootEvent.hh WCSimRootGeom.hh  WCSimPmtInfo.hh WCSimEnumerations.hh WCSimRootOptions.hh WCSimRootTools.hh TJNuBeamFlux.hh TNRooTrackerVtx.hh WCSimRootLinkDef.hh
+#	rootcint  -f ./WCSimRootDict.cxx -c -I./include -I$(shell root-config --incdir) WCSimRootEvent.hh WCSimRootGeom.hh  WCSimPmtInfo.hh WCSimEnumerations.hh WCSimRootOptions.hh WCSimRootTools.hh TJNuBeamFlux.hh TNRooTrackerVtx.hh WCSimRootLinkDef.hh
 # In case the dictionary does not compile, try the -p flag
-#	rootcint  -f ./WCSimRootDict.cxx -c -p -I./include -I$(shell root-config --incdir) WCSimRootEvent.hh WCSimRootGeom.hh  WCSimPmtInfo.hh WCSimEnumerations.hh WCSimRootOptions.hh TJNuBeamFlux.hh TNRooTrackerVtx.hh WCSimRootLinkDef.hh
+	rootcint  -f ./WCSimRootDict.cxx -c -p -I./include -I$(shell root-config --incdir) WCSimRootEvent.hh WCSimRootGeom.hh  WCSimPmtInfo.hh WCSimEnumerations.hh WCSimRootOptions.hh TJNuBeamFlux.hh TNRooTrackerVtx.hh WCSimRootLinkDef.hh
 
 rootcint: ./WCSimRootDict.cxx
 
