@@ -19,9 +19,9 @@ alias root='root -l'
 ############################
 
 pwd=$PWD
-cd /usr/local/geant4.10/geant4.10.03.p02/bin/
+cd /usr/local/sklib_gcc8/geant4.10.05.p01/bin/
 source geant4.sh
-cd /usr/local/geant4.10/geant4.10.03.p02/share/Geant4-10.3.2/geant4make/
+cd /usr/local/sklib_gcc8/geant4.10.05.p01/share/Geant4-10.5.1/geant4make/
 source geant4make.sh
 echo "Connect a PATH of Geant4.10"
 cd "$pwd"
@@ -30,6 +30,7 @@ cd "$pwd"
 # WCSim
 ############################
 export BRANCH_NAME=$(git rev-parse --abbrev-ref HEAD)
+#export BRANCH_NAME=/IWCD/develop
 export WCSIMDIR=$(pwd)-build/ROOT6/$BRANCH_NAME
+#export WCSIMDIR=../WCSim-build/ROOT5/IWCD/develop
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$WCSIMDIR
-
