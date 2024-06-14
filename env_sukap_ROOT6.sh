@@ -29,8 +29,8 @@ cd "$pwd"
 ############################
 # WCSim
 ############################
-export BRANCH_NAME=$(git rev-parse --abbrev-ref HEAD)
+#export BRANCH_NAME=$(git rev-parse --abbrev-ref HEAD)
 #export BRANCH_NAME=/IWCD/develop
-export WCSIMDIR=$(pwd)-build/ROOT6/$BRANCH_NAME
-#export WCSIMDIR=../WCSim-build/ROOT5/IWCD/develop
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$WCSIMDIR
+#export WCSIMDIR=$(pwd)-build/ROOT6/$BRANCH_NAME
+#export WCSIMDIR=~/WCSim-build/ROOT6/IWCD/develop
+#export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$WCSIMDIR
