@@ -309,7 +309,7 @@
 /WCSimIO/SaveRooTracker 0
 
 ## change the name of the output root file, default = wcsim.root
-/WCSimIO/RootFile ./rootFile/wcsim_output.root
+/WCSimIO/RootFile ../rootfile/wcsim_output.root
 
 ## set a timer running on WCSimRunAction
 #/WCSimIO/Timer false

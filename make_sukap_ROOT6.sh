@@ -30,6 +30,7 @@ if [ ! -d ${build_directory} ]; then
 	cp -r ${wcsim_directory}/macros ${build_directory}/.    
 	cp ${wcsim_directory}/WCSim.mac ${build_directory}/src/.  
 	cp ${wcsim_directory}/tuningNominal.mac ${build_directory}/src/. 
+	mkdir ${wcsim_directory}/rootfile
 
 else 
 	cd ${build_directory}
