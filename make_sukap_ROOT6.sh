@@ -2,13 +2,15 @@
 
 source env_sukap_ROOT6.sh
 
-/usr/local/cmake-3.18.1/bin/cmake --version 
+#/usr/local/cmake-3.18.1/bin/cmake --version 
+/usr/local/cmake-3.26.0/build/bin/cmake --version 
 
 wcsim_name=${PWD##*/}
 branch_name=$(git rev-parse --abbrev-ref HEAD)
 
 wcsim_directory=${PWD}
-build_directory=${wcsim_directory}/../${wcsim_name}-build/ROOT6/${branch_name}
+#build_directory=${wcsim_directory}/../${wcsim_name}-build/ROOT6/${branch_name}
+branch_name="IWCD/develop"   
 
 if [ ! -d ${build_directory} ]; then
 	
@@ -22,9 +24,13 @@ if [ ! -d ${build_directory} ]; then
 	mkdir -p ${build_directory}
 	
 	cd ${build_directory}
-	/usr/local/cmake-3.18.1/bin/cmake -DCMAKE_PREFIX_PATH=${G4INSTALLDIR} ${wcsim_directory}
+	/usr/local/cmake-3.26.0/build/bin/cmake -DCMAKE_PREFIX_PATH=${G4INSTALLDIR} ${wcsim_directory}
 	
 	cp -r ${wcsim_directory}/sample-root-scripts ${build_directory}/.
+	cp -r ${wcsim_directory}/macros ${build_directory}/.    
+	cp ${wcsim_directory}/WCSim.mac ${build_directory}/src/.  
+	cp ${wcsim_directory}/tuningNominal.mac ${build_directory}/src/. 
+
 else 
 	cd ${build_directory}
 fi
