@@ -14,10 +14,10 @@ WCSimPrimaryGeneratorMessenger::WCSimPrimaryGeneratorMessenger(WCSimPrimaryGener
 
   genCmd = new G4UIcmdWithAString("/mygen/generator",this);
   genCmd->SetGuidance("Select primary generator.");
-  genCmd->SetGuidance(" Available generators : muline, ambeevt, gun, laser, gps, ibd, datatable, cosmics, radioactive, rootracker, radon, injector, lightinjector, gamma-conversion, mPMT-LED");
+  genCmd->SetGuidance(" Available generators : muline, ambeevt, gun, laser, gps, ibd, datatable, cosmics, radioactive, rootracker, radon, injector, lightinjector, gamma-conversion, mPMT-LED, nickel");
   genCmd->SetParameterName("generator",true);
   genCmd->SetDefaultValue("muline");
-  genCmd->SetCandidates("muline ambeevt gun laser gps ibd datatable cosmics radioactive rootracker radon injector lightinjector gamma-conversion mPMT-LED");
+  genCmd->SetCandidates("muline ambeevt gun laser gps ibd datatable cosmics radioactive rootracker radon injector lightinjector gamma-conversion mPMT-LED nickel");
 
   fileNameCmd = new G4UIcmdWithAString("/mygen/vecfile",this);
   fileNameCmd->SetGuidance("Select the file of vectors.");
@@ -208,6 +208,7 @@ WCSimPrimaryGeneratorMessenger::~WCSimPrimaryGeneratorMessenger()
   delete lightInjectorModeCmd;
   delete mPMTLEDIdCmd1;
   delete mPMTLEDIdCmd2;
+  delete NiPosCmd;
 }
 
 void WCSimPrimaryGeneratorMessenger::SetNewValue(G4UIcommand * command,G4String newValue)
@@ -231,6 +232,7 @@ void WCSimPrimaryGeneratorMessenger::SetNewValue(G4UIcommand * command,G4String 
       myAction->SetRadioactiveEvtGenerator(false);
       myAction->SetRadonEvtGenerator(false);
       myAction->SetmPMTledEvtGenerator(false);
+      myAction->SetNickelEvtGenerator(false);
     }
     else if ( newValue == "ambeevt")
     {
@@ -248,6 +250,7 @@ void WCSimPrimaryGeneratorMessenger::SetNewValue(G4UIcommand * command,G4String 
       myAction->SetRadioactiveEvtGenerator(false);
       myAction->SetRadonEvtGenerator(false);
       myAction->SetmPMTledEvtGenerator(false);
+      myAction->SetNickelEvtGenerator(false);
     }
     else if ( newValue == "gun")
     {
@@ -265,6 +268,7 @@ void WCSimPrimaryGeneratorMessenger::SetNewValue(G4UIcommand * command,G4String 
       myAction->SetRadioactiveEvtGenerator(false);
       myAction->SetRadonEvtGenerator(false);
       myAction->SetmPMTledEvtGenerator(false);
+      myAction->SetNickelEvtGenerator(false);
     }
     else if ( newValue == "rootracker")
     {
@@ -282,6 +286,7 @@ void WCSimPrimaryGeneratorMessenger::SetNewValue(G4UIcommand * command,G4String 
       myAction->SetRadioactiveEvtGenerator(false);
       myAction->SetRadonEvtGenerator(false);
       myAction->SetmPMTledEvtGenerator(false);
+      myAction->SetNickelEvtGenerator(false);
     }
     else if ( newValue == "laser")   //T. Akiri: Addition of laser
     {
@@ -299,6 +304,7 @@ void WCSimPrimaryGeneratorMessenger::SetNewValue(G4UIcommand * command,G4String 
       myAction->SetRadioactiveEvtGenerator(false);
       myAction->SetRadonEvtGenerator(false);
       myAction->SetmPMTledEvtGenerator(false);
+      myAction->SetNickelEvtGenerator(false);
     }
     else if ( newValue == "injector")   // addition of injector events
     {
@@ -316,6 +322,7 @@ void WCSimPrimaryGeneratorMessenger::SetNewValue(G4UIcommand * command,G4String 
       myAction->SetRadioactiveEvtGenerator(false);
       myAction->SetRadonEvtGenerator(false);
       myAction->SetmPMTledEvtGenerator(false);
+      myAction->SetNickelEvtGenerator(false);
     }
     else if ( newValue == "lightinjector")   // L.Kneale: injector profile from db
     {
@@ -333,6 +340,7 @@ void WCSimPrimaryGeneratorMessenger::SetNewValue(G4UIcommand * command,G4String 
       myAction->SetRadioactiveEvtGenerator(false);
       myAction->SetRadonEvtGenerator(false);
       myAction->SetmPMTledEvtGenerator(false);
+      myAction->SetNickelEvtGenerator(false);
     }
     else if ( newValue == "gps")
     {
@@ -351,6 +359,7 @@ void WCSimPrimaryGeneratorMessenger::SetNewValue(G4UIcommand * command,G4String 
       myAction->SetRadioactiveEvtGenerator(false);
       myAction->SetRadonEvtGenerator(false);
       myAction->SetmPMTledEvtGenerator(false);
+      myAction->SetNickelEvtGenerator(false);
     }
     else if (newValue == "ibd") // IBD (inverse beta decay) generator
     {
@@ -368,6 +377,7 @@ void WCSimPrimaryGeneratorMessenger::SetNewValue(G4UIcommand * command,G4String 
       myAction->SetRadioactiveEvtGenerator(false);
       myAction->SetRadonEvtGenerator(false);
       myAction->SetmPMTledEvtGenerator(false);
+      myAction->SetNickelEvtGenerator(false);
     }
     else if (newValue == "datatable")
     {
@@ -385,6 +395,7 @@ void WCSimPrimaryGeneratorMessenger::SetNewValue(G4UIcommand * command,G4String 
       myAction->SetRadioactiveEvtGenerator(false);
       myAction->SetRadonEvtGenerator(false);
       myAction->SetmPMTledEvtGenerator(false);
+      myAction->SetNickelEvtGenerator(false);
     }
     else if ( newValue == "cosmics")
     {
@@ -402,6 +413,7 @@ void WCSimPrimaryGeneratorMessenger::SetNewValue(G4UIcommand * command,G4String 
       myAction->SetRadioactiveEvtGenerator(false);
       myAction->SetRadonEvtGenerator(false);
       myAction->SetmPMTledEvtGenerator(false);
+      myAction->SetNickelEvtGenerator(false);
     }
     else if ( newValue == "radioactive") //G. Pronost: Addition of Radioactivity (from F. Nova code)
     {
@@ -419,6 +431,7 @@ void WCSimPrimaryGeneratorMessenger::SetNewValue(G4UIcommand * command,G4String 
       myAction->SetRadioactiveEvtGenerator(true);
       myAction->SetRadonEvtGenerator(false);
       myAction->SetmPMTledEvtGenerator(false);
+      myAction->SetNickelEvtGenerator(false);
     }
     else if ( newValue == "radon" ) //G. Pronost: Addition of Radon generator (based on F. Nova's radioactive generator but dedicated to radioactive events in water)
     {
@@ -436,6 +449,7 @@ void WCSimPrimaryGeneratorMessenger::SetNewValue(G4UIcommand * command,G4String 
       myAction->SetRadioactiveEvtGenerator(false);
       myAction->SetRadonEvtGenerator(true);
       myAction->SetmPMTledEvtGenerator(false);
+      myAction->SetNickelEvtGenerator(false);
     }
     else if ( newValue == "gamma-conversion")
     {
@@ -450,6 +464,7 @@ void WCSimPrimaryGeneratorMessenger::SetNewValue(G4UIcommand * command,G4String 
       myAction->SetDataTableEvtGenerator(false);
       myAction->SetNeedConversion(true);
       myAction->SetmPMTledEvtGenerator(false);
+      myAction->SetNickelEvtGenerator(false);
     }	  
     else if (newValue == "mPMT-LED")
     {
@@ -467,6 +482,7 @@ void WCSimPrimaryGeneratorMessenger::SetNewValue(G4UIcommand * command,G4String 
       myAction->SetRadioactiveEvtGenerator(false);
       myAction->SetRadonEvtGenerator(false);
       myAction->SetmPMTledEvtGenerator(true);
+      myAction->SetNickelEvtGenerator(false);
     }
     else if ( newValue == "nickel")   //T. Yano: Addition of Nickel Calibration
     {
